@@ -14,6 +14,8 @@ const formSchema = z.object({
 
 type FormData = {
   username: string;
+  email: string;
+  password: string;
 };
 type StepProps = {
   handlePrev: () => void;
