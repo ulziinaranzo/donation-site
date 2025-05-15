@@ -23,7 +23,7 @@ type StepProps = {
   data: FormData;
   saveFormDataChange: (newData: Partial<FormData>) => void;
 };
-
+type SignupFormData = z.infer<typeof formSchema>;
 export const Step = ({
   handleNext,
   handlePrev,
@@ -34,14 +34,14 @@ export const Step = ({
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<SignupFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: data.username || "",
     },
   });
 
-  const onSubmit = (savingData: FormData) => {
+  const onSubmit = (savingData: SignupFormData) => {
     saveFormDataChange(savingData);
     handleNext();
   };

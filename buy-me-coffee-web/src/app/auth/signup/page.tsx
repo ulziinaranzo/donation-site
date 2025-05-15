@@ -4,10 +4,16 @@ import { useState } from "react";
 import { Step } from "./_components/Step";
 import { Step1 } from "./_components/Step1";
 
+type MyFormData = {
+  username: string;
+  password: string;
+  email: string;
+};
+
 export const SignUp = () => {
   const [step, setStep] = useState<boolean>(false);
 
-  const [data, setData] = useState<FormData>({
+  const [data, setData] = useState<MyFormData>({
     username: "",
     password: "",
     email: "",
@@ -16,7 +22,7 @@ export const SignUp = () => {
   const handlePrev = async () => setStep(false);
   const handleNext = async () => setStep(true);
 
-  const saveFormDataChange = (newData: Partial<FormData>) => {
+  const saveFormDataChange = (newData: Partial<MyFormData>) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
   return (
