@@ -2,6 +2,9 @@
 
 import { Home, Settings, User, Compass } from "lucide-react";
 import DonationsPage from "./DonationPage";
+import { EditProfile } from "./EditProfile";
+import { ChangePassword } from "./ChangePassword";
+import ChangePaymentDetails from "./ChangePaymentDetails";
 
 export default function MyPageWithSidebar() {
   const handleShare = () => {
@@ -44,7 +47,10 @@ export default function MyPageWithSidebar() {
       </aside>
 
       <main className="flex-1 p-[24px]">
-        <DonationsPage/>
+        {/* <DonationsPage /> */}
+        <EditProfile />
+        <ChangePassword />
+        <ChangePaymentDetails />
       </main>
     </div>
   );

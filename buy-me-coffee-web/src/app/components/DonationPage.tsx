@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -77,22 +77,25 @@ export default function DonationsPage() {
               </p>
             </div>
           </div>
-          <Button variant="outline" className="gap-2 bg-black text-white font-[500] text-[14px] px-[16px] py-[12px] rounded-lg">
+          <Button
+            variant="outline"
+            className="gap-2 bg-black text-white font-[500] text-[14px] px-[16px] py-[12px] rounded-lg"
+          >
             Share page link <ArrowUpRight size={16} />
           </Button>
         </div>
         <Separator className="my-4" />
 
         <div className="flex items-center gap-[20px]">
-          <CardTitle className="text-[600] text-[20px]">Earnings</CardTitle>
+          <CardTitle className="text-[600] text-[20px]">Орлого</CardTitle>
           <Select defaultValue="30days">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a range" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="30days">Last 30 days</SelectItem>
-                <SelectItem value="7days">Last 7 days</SelectItem>
+                <SelectItem value="30days">Сүүлийн 30 хоног</SelectItem>
+                <SelectItem value="7days">Сүүлийн 7 хоног</SelectItem>
                 <SelectItem value="all">All time</SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -103,7 +106,9 @@ export default function DonationsPage() {
 
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Recent Transactions</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Recent Transactions
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-96 pr-4">
