@@ -1,6 +1,7 @@
 "use client";
 
 import { Home, Settings, User, Compass } from "lucide-react";
+import DonationsPage from "./DonationPage";
 
 export default function MyPageWithSidebar() {
   const handleShare = () => {
@@ -43,7 +44,7 @@ export default function MyPageWithSidebar() {
       </aside>
 
       <main className="flex-1 p-[24px]">
-        <div className="flex flex-col gap-[24px]"></div>
+        <DonationsPage/>
       </main>
     </div>
   );
