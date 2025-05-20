@@ -5,16 +5,42 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@radix-ui/react-separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Anchor, CameraIcon, PictureInPicture } from "lucide-react";
+import { Anchor, CameraIcon, Coffee, PictureInPicture } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useParams } from "next/navigation";
+import { EditPageDialog } from "../../_components/EditPageDialog";
 
 const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
-export default function CoffeePage() {
+type Params = {
+    id: string;
+}
+type User = {
+    name: string;
+    email: string;
+}
+
+export default function UserPage() {
+//     const { id } = useParams<Params>()
+//     const [user, setUser] = useState<User>(null)
+// useEffect(() => {
+//     const getUser = async () => {
+//         const { data } = await axios.get(`http://localhost:3001/page/${id}?language=en-Us`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${Access_Token}`
+//                 }
+//             }
+//         )
+//                     setUser(data)
+//     }
+//             getUser()
+// }, [id])
+
   const [profileImage, setProfileImage] = useState("");
   const uploadImage = async (file: File) => {
     const formData = new FormData();
@@ -63,16 +89,24 @@ export default function CoffeePage() {
       <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 gap-[20px] z-30 flex">
         <div className="flex flex-col gap-[20px] w-[632px]">
           <Card className="shadow-sm">
-            <div className="flex p-[24px]">
+            <div className="flex justify-between pl-[24px] pr-[24px]">
               <div className="flex gap-[12px]">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
+                <Avatar className="w-[48px] h-[48px]">
+  <AvatarImage
+    src="https://github.com/shadcn.png"
+    className="w-[48px] h-[48px]"
+  />
+  <AvatarFallback className="w-[48px] h-[48px]">CN</AvatarFallback>
+</Avatar>
+
                 <div className="font-[700] text-[20px]">Jake</div>
               </div>
+             <div className="w-[96px]">
+  <EditPageDialog />
+</div>
+
             </div>
-            <CardHeader className="text-lg font-semibold pb-2">
+            <CardHeader className="text-lg font-semibold">
               About Jake
             </CardHeader>
             <CardContent>
@@ -83,7 +117,7 @@ export default function CoffeePage() {
             </CardContent>
           </Card>
           <Card className="shadow-sm">
-            <CardHeader className="text-lg font-semibold pb-2">
+            <CardHeader className="text-lg font-semibold">
               Social Media
             </CardHeader>
             <CardContent>
@@ -97,7 +131,7 @@ export default function CoffeePage() {
             </CardContent>
           </Card>
           <Card className="shadow-s">
-            <CardHeader className="text-lg font-semibold pb-2">
+            <CardHeader className="text-lg font-semibold">
               Recent Supporters
             </CardHeader>
             <CardContent className="flex flex-col justify-center items-center">
@@ -111,52 +145,29 @@ export default function CoffeePage() {
             </CardContent>
           </Card>
         </div>
-        <div className=""></div>
-        <Card>
-          <CardHeader className="text-2xl font-bold text-center">
+        <Card className="mb-[50px] p-[24px]">
+          <CardHeader className="text-[24px] font-[600] text-left">
             Buy Jake a Coffee
           </CardHeader>
 
           <CardContent className="space-y-4 w-[623px]">
             <div className="space-y-2">
-              <Label>Social media URL:</Label>
-              <a
-                href="https://buymasacoffee.com/space/rcl4r4"
-                className="text-sm text-blue-600 hover:underline"
-                target="_blank"
-              >
-                https://buymasacoffee.com/space/rcl4r4
-              </a>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h3 className="font-medium">Recent Supporters</h3>
-              <p className="text-sm text-muted-foreground">
-                Be the first one to support Jake
-              </p>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
               <Label>Select amount:</Label>
               <div className="flex gap-2 flex-wrap">
-                {[1, 2, 3].map((amount) => (
+                {[1, 2, 5, 10].map((amount) => (
                   <Button
                     key={amount}
                     variant="outline"
-                    className="flex-1 min-w-[80px]"
+                    className="bg-[#F4F4F5CC] w-[72px]"
                   >
-                    ${amount}
+                    <Coffee/>${amount}
                   </Button>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Enter buymasacoffee.com/ or social account URL:</Label>
+            <div className="space-y-2 mt-[32px] mb-[20px]">
+              <Label>Enter BuyMeCoffee or social account URL:</Label>
               <div className="flex items-center gap-1">
                 <Input placeholder="buymasacoffee.com/your-username" />
               </div>
@@ -168,7 +179,7 @@ export default function CoffeePage() {
                 placeholder="Please write your message here."
                 className="h-[153px]"
               />
-              <button className="flex justify-center items-center w-full bg-[gray] rounded-lg text-white h-[40px]">
+              <button className="flex justify-center items-center w-full bg-[black] rounded-lg text-white h-[40px] mt-[32px]">
                 Support
               </button>
             </div>

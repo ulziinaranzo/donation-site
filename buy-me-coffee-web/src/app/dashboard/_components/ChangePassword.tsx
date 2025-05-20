@@ -40,9 +40,9 @@ export const ChangePassword = () => {
     console.log("Password changed", data);
   };
   return (
-    <Card className="w-[650px]">
+    <Card className="w-[650px] mb-[32px]">
       <CardHeader>
-        <CardTitle>Шинэ нууц үг үүсгэх</CardTitle>
+        <CardTitle className="text-[16px] font-[700]">Шинэ нууц үг үүсгэх</CardTitle>
         <CardDescription>Нууц үгээ солих юм уу тэ?</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -71,11 +71,10 @@ export const ChangePassword = () => {
         <CardFooter className="flex justify-end">
           <Button
             type="submit"
-            className="w-[246px] h-[40px] mt-4"
+            className="w-full h-[40px] mt-4 bg-black"
             disabled={!isValid}
           >
-            Өөрчлөлтийг хадгалах
-          </Button>
+Хадгалах          </Button>
         </CardFooter>
       </form>
     </Card>

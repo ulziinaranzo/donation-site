@@ -1,5 +1,4 @@
 "use client";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -62,17 +61,16 @@ export default function ChangePaymentDetails() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-white p-6">
-      <Card className="w-full max-w-3xl">
+    <div className="flex bg-white">
+      <Card className="w-[650px]">
         <CardHeader>
-          <CardTitle>Банкны мэдээлэл</CardTitle>
+          <CardTitle className="text-[16px] font-[700]">Банкны мэдээлэл</CardTitle>
           <CardDescription>
             Байршил болон картын мэдээллээ оруулна уу
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-6">
-            {/* Улс */}
             <div className="space-y-2">
               <Label>Улс</Label>
               <Select onValueChange={(value) => setValue("country", value)}>
@@ -91,8 +89,6 @@ export default function ChangePaymentDetails() {
                 <p className="text-sm text-red-500">{errors.country.message}</p>
               )}
             </div>
-
-            {/* Нэр, овог */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Нэр</Label>
@@ -119,8 +115,6 @@ export default function ChangePaymentDetails() {
                 )}
               </div>
             </div>
-
-            {/* Картын дугаар */}
             <div className="space-y-2">
               <Label>Картын дугаар</Label>
               <Input
@@ -133,10 +127,8 @@ export default function ChangePaymentDetails() {
                 </p>
               )}
             </div>
-
-            {/* Дуусах сар, он, CVC */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 <Label>Дуусах сар</Label>
                 <Select
                   onValueChange={(value) => setValue("expiryMonth", value)}
@@ -182,7 +174,7 @@ export default function ChangePaymentDetails() {
                   </SelectContent>
                 </Select>
                 {errors.expiryYear && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-sm text-red-500 ">
                     {errors.expiryYear.message}
                   </p>
                 )}
@@ -192,14 +184,14 @@ export default function ChangePaymentDetails() {
                 <Label>CVC</Label>
                 <Input placeholder="CVC" {...register("cvc")} />
                 {errors.cvc && (
-                  <p className="text-sm text-red-500">{errors.cvc.message}</p>
+                  <p className="text-sm text-red-500 w-[190px]">{errors.cvc.message}</p>
                 )}
               </div>
             </div>
           </CardContent>
-          <div className="flex justify-end p-6 pt-0">
-            <Button type="submit" className="w-[246px]" disabled={!isValid}>
-              Үргэлжлүүлэх
+          <div className="flex justify-end p-6 pt-0 mt-[10px] ">
+            <Button type="submit" className="w-full bg-black" disabled={!isValid}>
+              Хадгалах
             </Button>
           </div>
         </form>

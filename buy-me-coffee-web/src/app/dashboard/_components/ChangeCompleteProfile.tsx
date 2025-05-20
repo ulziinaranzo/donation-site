@@ -54,10 +54,10 @@ export default function ChangeCompleteProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col py-12 bg-white">
+    <div className="flex flex-col bg-whit mb-[32px] mt-[32px]">
       <Card className="w-[650px] space-y-8">
         <CardHeader>
-          <CardTitle>Хувийн мэдээлэл</CardTitle>
+          <CardTitle className="text-[16px] font-[700]">Хувийн мэдээлэл</CardTitle>
           <CardDescription>Профайл хуудсаа бөглөнө үү</CardDescription>
         </CardHeader>
         <CardContent>
@@ -124,10 +124,10 @@ export default function ChangeCompleteProfilePage() {
         <CardFooter className="flex justify-end">
           <Button
             type="submit"
-            className="w-[246px] h-[40px] mt-4"
+            className="w-full h-[40px] mt-4 bg-[black] text-white"
             disabled={!isValid}
           >
-            Өөрчлөлтийг хадгалах
+          Хадгалах
           </Button>
         </CardFooter>
       </Card>

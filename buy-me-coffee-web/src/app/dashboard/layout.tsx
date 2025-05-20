@@ -1,16 +1,12 @@
 "use client";
 
 import { Home, Settings, User, Compass } from "lucide-react";
-import DonationsPage from "./DonationPage";
-import { ChangePassword } from "../dashboard/_components/ChangePassword";
-import ChangePaymentDetails from "../dashboard/_components/ChangePaymentDetails";
-import UserPage from "../dashboard/page/[id]/page";
 
-export default function MyPageWithSidebar() {
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Link copied to clipboard!");
-  };
+export default function DashboardLayout({
+    children,
+} : {
+    children: React.ReactNode;
+}) {
   return (
     <div className="flex h-screen mt-[44px]">
       <aside className="w-[331px] bg-white p-4 pl-[80px]">
@@ -23,21 +19,21 @@ export default function MyPageWithSidebar() {
             <span>Нүүр хуудас</span>
           </a>
           <a
-            href="/explore"
+            href="/dashboard/explore"
             className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
           >
             <Compass className="w-4 h-4" />
             <span>Explore</span>
           </a>
           <a
-            href="/profile"
+            // href={`/dashboard/user/${user._id}`} 
             className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
           >
             <User className="w-4 h-4" />
-            <span>Профайл</span>
+            <span>Хуудас</span>
           </a>
           <a
-            href="/settings"
+            href="/dashboard/settings"
             className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
           >
             <Settings className="w-4 h-4" />
@@ -47,8 +43,7 @@ export default function MyPageWithSidebar() {
       </aside>
 
       <main className="flex-1 p-[24px]">
-        <UserPage/>
-
+        {children}
       </main>
     </div>
   );

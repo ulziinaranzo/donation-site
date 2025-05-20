@@ -61,6 +61,10 @@ const transactions = [
 ];
 
 export default function DonationsPage() {
+    const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard!");
+  };
   return (
     <div className="w-full mx-auto p-10 space-y-6">
       <Card className="p-6">

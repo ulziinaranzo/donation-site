@@ -77,48 +77,6 @@ export default function CompleteProfilePage() {
           </label>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Нэр</Label>
-            <Input
-              id="name"
-              placeholder="Нэрээ оруулна уу"
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="about">Өөрийн тухай</Label>
-            <Textarea
-              id="about"
-              placeholder="Өөрийнхөө тухай бичнэ үү"
-              {...register("about")}
-            />
-            {errors.about && (
-              <p className="text-sm text-red-500">{errors.about.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="url">Сошл хуудсын холбоос</Label>
-            <Input id="url" placeholder="https://" {...register("url")} />
-            {errors.url && (
-              <p className="text-sm text-red-500">{errors.url.message}</p>
-            )}
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              className="w-[246px] h-[40px] mt-4"
-              disabled={!isValid}
-            >
-              Үргэлжлүүлэх
-            </Button>
-          </div>
-        </form>
       </div>
     </div>
   );
