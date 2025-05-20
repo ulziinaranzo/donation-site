@@ -1,10 +1,10 @@
 "use client";
 
 import { Home, Settings, User, Compass } from "lucide-react";
-import DonationsPage from "./DonationPage";
-import { ChangePassword } from "../dashboard/_components/ChangePassword";
-import ChangePaymentDetails from "../dashboard/_components/ChangePaymentDetails";
-import UserPage from "../dashboard/page/[id]/page";
+import DonationsPage from "./HomePage";
+import { ChangePassword } from "./ChangePassword";
+import ChangePaymentDetails from "./ChangePaymentDetails";
+import UserPage from "../page/[id]/page";
 
 export default function MyPageWithSidebar() {
   const handleShare = () => {
@@ -47,8 +47,7 @@ export default function MyPageWithSidebar() {
       </aside>
 
       <main className="flex-1 p-[24px]">
-        <UserPage/>
-
+        <UserPage />
       </main>
     </div>
   );

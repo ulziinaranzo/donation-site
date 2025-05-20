@@ -1,19 +1,21 @@
 "use client";
-import { SignUp } from "./auth/signup/page";
-import MyPageComponent from "./components/Dashboard";
-import CompleteProfilePage from "./components/CompleteProfile";
-import PaymentForm from "./components/PaymentForm";
-import MyPageWithSidebar from "./components/Dashboard";
 
-export default function Home() {
+import { Home, Settings, User, Compass, Sidebar } from "lucide-react";
+import DonationsPage from "./components/HomePage";
+import { SidebarLeft } from "./components/Sidebar";
+
+export default function MyPageWithSidebar() {
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard!");
+  };
   return (
-    <div className="flex flex-col w-max-[1440px] h-fit">
-      {/* <SignUp /> */}
-      {/* <MyPageComponent /> */}
-      {/* <CompleteProfilePage />
-      <PaymentForm /> */}
-      {/* <CoffeePage /> */}
-      <MyPageWithSidebar />
+    <div className="flex h-screen mt-[44px]">
+      <SidebarLeft />
+
+      <main className="flex-1 p-[24px]">
+        <DonationsPage />
+      </main>
     </div>
   );
 }
