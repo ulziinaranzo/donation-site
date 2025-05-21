@@ -1,0 +1,16 @@
+-- DropIndex
+DROP INDEX "Donation_recipientId_key";
+
+-- AlterTable
+ALTER TABLE "BankCard" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Donation" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Profile" ALTER COLUMN "backgroundImage" DROP NOT NULL,
+ALTER COLUMN "successMessage" DROP NOT NULL,
+ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;

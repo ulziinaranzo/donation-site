@@ -21,7 +21,7 @@ export const updateUserController: RequestHandler = async (req, res) => {
     res.status(200).json({ message: "Амжилттай солилоо", user: updatedUser });
     return;
   } catch (error: any) {
-    console.error("Хэрэглэгчийг шинэчлэхэд алдаа гарлаа");
+    console.error(error);
     if (error.code === "P2025") {
       res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
       return;
