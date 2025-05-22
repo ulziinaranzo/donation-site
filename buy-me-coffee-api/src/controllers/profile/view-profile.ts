@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { prisma } from "../../db";
-import { profile } from "console";
 
 export const viewUser: RequestHandler = async (req, res) => {
   try {
