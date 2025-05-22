@@ -10,7 +10,7 @@ type MyFormData = {
   email: string;
 };
 
-export const SignUp = () => {
+const SignUp = () => {
   const [step, setStep] = useState<boolean>(false);
 
   const [data, setData] = useState<MyFormData>({
@@ -57,3 +57,5 @@ export const SignUp = () => {
     </div>
   );
 };
+
+export default SignUp;

@@ -70,7 +70,7 @@ export const Step1 = ({
   };
   return (
     <div className="flex justify-center items-center">
-      <div className="flex flex-col p-8 space-y-6 mt-[200px]">
+      <div className="flex flex-col space-y-6 mb-[100px]">
         <div className="text-xl font-semibold text-gray-900">
           Шинэ бүртгэл үүсгэх
         </div>
@@ -80,7 +80,7 @@ export const Step1 = ({
             name="email"
             control={control}
             render={({ field }) => (
-              <div>
+              <div className="mt-4">
                 <Input
                   {...field}
                   placeholder="Имэйлээ оруулна уу"
@@ -98,7 +98,7 @@ export const Step1 = ({
             name="password"
             control={control}
             render={({ field }) => (
-              <div>
+              <div className="mt-4">
                 <Input
                   {...field}
                   type={showPassword ? "text" : "password"}
@@ -134,9 +134,9 @@ export const Step1 = ({
               checked={showPassword}
               onCheckedChange={(checked) => setShowPassword(Boolean(checked))}
             />
-            <Label htmlFor="showPassword"></Label>
+            <Label htmlFor="showPassword">Нууц үгийг харах</Label>
           </div>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full mt-4 ">
             Үргэлжлүүлэх
           </Button>
         </form>

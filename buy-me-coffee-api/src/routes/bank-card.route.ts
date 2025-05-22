@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { createBankCard } from "../controllers/bank-account/create-bank-card";
-import { getBankCard } from "../controllers/bank-account/get-bank-card";
-import { updateBankCard } from "../controllers/bank-account/update-bank-card";
+import { createBankCard } from "../controllers/bank-card/create-bank-card";
+import { getBankCard } from "../controllers/bank-card/get-bank-card";
+import { updateBankCard } from "../controllers/bank-card/update-bank-card";
 
 const bankCardRouter = Router();
 
