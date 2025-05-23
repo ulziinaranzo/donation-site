@@ -71,7 +71,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Avatar>
-              <AvatarImage src="https://via.placeholder.com/40" />
+              <AvatarImage />
               <AvatarFallback>J</AvatarFallback>
             </Avatar>
             <div>

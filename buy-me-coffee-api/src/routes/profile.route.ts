@@ -10,7 +10,7 @@ const profileRouter = Router();
 profileRouter.post("/profile/:username", createProfile);
 
 profileRouter
-  .get("/profile/view/username", viewUser)
+  .get("/profile/view/:username", viewUser)
   .get("/profile/explore", exploreProfile);
 profileRouter.get("/profile/current-user", viewCurrentProfile);
 profileRouter.put("/profile/:userId", updateProfile);

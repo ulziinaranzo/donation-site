@@ -9,6 +9,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { api } from "@/axios";
+import { useAuth } from "../_components/AuthProvider";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
@@ -20,6 +23,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function CompleteProfilePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { user } = useAuth()
 
   const {
     register,
@@ -31,7 +35,12 @@ export default function CompleteProfilePage() {
   });
 
   const onSubmit = (data: ProfileFormData) => {
-    console.log("Submitted data:", data);
+    try {
+      const { data } = await api.post("/profile/:userId",
+       {avatarImage, about, name, socialMediaUrl, backgroundImage, successMessage}
+      )
+    }
+    toast.success("Амжилттай профайл үүслээ")
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

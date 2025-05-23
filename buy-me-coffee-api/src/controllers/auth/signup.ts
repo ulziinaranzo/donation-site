@@ -31,15 +31,18 @@ export const signUpController: RequestHandler = async (req, res) => {
       },
     });
 
-    const { password: _, ...userWithoutPassword } = newUser;
+    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_NUUTS!, {
+      expiresIn: "7d",
+    });
 
-    const token = jwt.sign(
-      { userId: newUser.id },
-      process.env.JWT_NUUTS as string
-    );
+    const { password: _, ...userWithoutPassword } = newUser;
 
     res.status(201).json({ user: userWithoutPassword, token });
   } catch (error) {
-    res.status(500).json({ message: "Сервер дээр алдаа гарлаа", error });
+    console.error("Signup error:", error);
+    res.status(500).json({
+      message: "Сервер дээр алдаа гарлаа",
+      error: (error as Error).message,
+    });
   }
 };

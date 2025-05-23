@@ -78,9 +78,9 @@ export const Step = ({
         </form>
         <div className="flex justify-center items-center ">
           <span className="text-gray-500">Бүртгэлтэй юу?</span>
-          {/* <Link href="/auth/login" className="text-blue-600">
-          Нэвтрэх
-          </Link> */}
+          <Link href="/auth/login" className="text-blue-600">
+            Нэвтрэх
+          </Link>
         </div>
       </div>
     </div>

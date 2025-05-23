@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { sign } from "crypto";
+import { useAuth } from "@/app/_components/AuthProvider";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -43,7 +44,8 @@ export const Step1 = ({
   saveFormDataChange,
 }: Step1Props) => {
   const [showPassword, setShowPassword] = useState(false);
-  //   const { signUp } = useAuth();
+  const { signUp } = useAuth();
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -64,6 +66,7 @@ export const Step1 = ({
       await signUp(dataToSave.email, dataToSave.password, data.username);
       console.log("Бүртгэл амжилттай");
       handleNext();
+      router.push("/");
     } catch (error) {
       console.error("Бүртгэхэд алдаа гарлаа");
     }
