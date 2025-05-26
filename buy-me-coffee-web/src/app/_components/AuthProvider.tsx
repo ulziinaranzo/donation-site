@@ -25,12 +25,25 @@ export type BankCard = {
   expiryDate: Date;
 };
 
-export type Donation = {
+export interface Donation {
+  id: number;
   amount: number;
   specialMessage: string;
-};
+  createdAt: string;
+  recipient: {
+    id: number;
+    email: string;
+    profile: {
+      name: string;
+      avatarImage: string;
+      socialMediaUrl: string;
+    };
+  };
+}
+
 
 export type User = {
+    id: number;
   name: string;
   email: string;
   password: string;
@@ -77,7 +90,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);
-      router.push("/");
+      router.push("/complete-profile");
     } catch (error) {
       console.error(error);
       toast.error("Бүртгүүлэхэд алдаа гарлаа");

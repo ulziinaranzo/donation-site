@@ -11,8 +11,7 @@ export default function MyPageWithSidebar() {
   };
   return (
     <div className="flex h-screen mt-[44px]">
-      <SidebarLeft />
-
+      <SidebarLeft/>
       <main className="flex-1 p-[24px]">
         <DonationsPage />
       </main>

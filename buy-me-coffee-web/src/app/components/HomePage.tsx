@@ -1,98 +1,102 @@
 "use client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react";
+import { api } from "@/axios";
+import { toast } from "sonner";
 import { ArrowUpRight } from "lucide-react";
+import { Donation, useAuth } from "../_components/AuthProvider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar } from "@radix-ui/react-avatar";
+import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const transactions = [
-  {
-    name: "Guest",
-    avatar: "CN",
-    profile: "instagram.com/weedlesy",
-    message:
-      "Thank you for being so awesome everyday! You always manage to brighten up my day when I'm feeling down. Although $1 isn't that much money it's all I can contribute at the moment",
-    amount: 1,
-    time: "10 hours ago",
-  },
-  {
-    name: "John Doe",
-    avatar: "JD",
-    profile: "buymeacoffee.com/bdsads",
-    message: "Thank you for being so awesome everyday!",
-    amount: 10,
-    time: "10 hours ago",
-  },
-  {
-    name: "Radicals",
-    avatar: "CN",
-    profile: "buymeacoffee.com/ajkgrow",
-    message: "",
-    amount: 2,
-    time: "10 hours ago",
-  },
-  {
-    name: "Guest",
-    avatar: "CN",
-    profile: "facebook.com/pierakepeb",
-    message: "",
-    amount: 5,
-    time: "10 hours ago",
-  },
-  {
-    name: "Fan1",
-    avatar: "F1",
-    profile: "buymeacoffee.com/supporterone",
-    message:
-      "Thank you for being so awesome everyday! You always manage to brighten up my day when I'm feeling down. Although $1 isn't that much money it's all I can contribute at the moment. When I become successful I will be sure to buy you...",
-    amount: 10,
-    time: "10 hours ago",
-  },
-];
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function HomePage() {
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [timeFilter, setTimeFilter] = useState("30days");
+  const [amountFilter, setAmountFilter] = useState("");
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    getDonations();
+  }, [user]);
+
+  const getDonations = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/donation/received/${user?.id}`);
+      setDonations(response.data.donations);
+      console.log(response.data.donations)
+    } catch (error) {
+      console.error("Donation-ийг авахад алдаа гарлаа", error);
+      toast.error("Donation-ийг авахад алдаа гарлаа");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert("Link copied to clipboard!");
+    toast.success("Линк клипбоардад хууллаа");
   };
+
+  const filteredDonations = donations
+    .filter((d) => {
+      if (timeFilter === "7days") {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return new Date(d.createdAt) >= sevenDaysAgo;
+      } else if (timeFilter === "30days") {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return new Date(d.createdAt) >= thirtyDaysAgo;
+      }
+      return true; 
+    })
+.filter((d) => {
+  return amountFilter !== "all" ? d.amount === parseInt(amountFilter) : true;
+})
+  const totalAmount = filteredDonations.reduce((acc, curr) => acc + curr.amount, 0);
+
   return (
     <div className="w-full mx-auto p-10 space-y-6">
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Avatar>
-              <AvatarImage />
-              <AvatarFallback>J</AvatarFallback>
+              <AvatarImage src={user?.profile?.avatarImage || ""} />
+              <AvatarFallback>{user?.profile?.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-[16px] font-[700]">Jake</h2>
+              <h2 className="text-[16px] font-[700]">{user?.profile?.name}</h2>
               <p className="text-[14px] font-[400] text-muted-foreground">
-                buymeacoffee.com/baconpancakes1
+                {user?.profile?.socialMediaUrl}
               </p>
             </div>
           </div>
           <Button
             variant="outline"
             className="gap-2 bg-black text-white font-[500] text-[14px] px-[16px] py-[12px] rounded-lg"
+            onClick={handleShare}
           >
             Share page link <ArrowUpRight size={16} />
           </Button>
         </div>
         <Separator className="my-4" />
-
-        <div className="flex items-center gap-[20px]">
+        <div className="flex flex-wrap gap-4 items-center">
           <CardTitle className="text-[600] text-[20px]">Орлого</CardTitle>
-          <Select defaultValue="30days">
+
+          <Select defaultValue="30days" onValueChange={setTimeFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a range" />
             </SelectTrigger>
@@ -105,50 +109,72 @@ export default function HomePage() {
             </SelectContent>
           </Select>
         </div>
-        <p className="text-3xl font-bold mt-4">$450</p>
+        <p className="text-3xl font-bold mt-4">${totalAmount}</p>
       </Card>
-
+<div className="flex justify-between">    
+  <div className="text-lg font-semibold">Recent Transactions </div>
+        <Select defaultValue="" onValueChange={setAmountFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by amount" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Бүгд</SelectItem>
+                <SelectItem value="1">$1</SelectItem>
+                <SelectItem value="2">$2</SelectItem>
+                <SelectItem value="5">$5</SelectItem>
+                <SelectItem value="10">$10</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select></div>
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Recent Transactions
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold">Recent Transactions</CardTitle>
+          
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-96 pr-4">
             <div className="space-y-6">
-              {transactions.map((tx, i) => (
-                <div key={i} className="space-y-2">
+              {filteredDonations.length === 0 && (
+                <p className="text-muted-foreground text-sm">Донэйшн олдсонгүй.</p>
+              )}
+              {filteredDonations.map((tx, i) => (
+                <div key={tx.id} className="space-y-2">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-3">
                       <Avatar>
-                        <AvatarFallback>{tx.avatar}</AvatarFallback>
+                        <AvatarImage src={tx.recipient.profile.avatarImage || ""} />
+                        <AvatarFallback>
+                          {tx.recipient.profile.name?.charAt(0) || "R"}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{tx.name}</p>
+                        <p className="font-medium">{tx.recipient.profile.name}</p>
                         <a
-                          href={`https://${tx.profile}`}
+                          href={`https://${tx.recipient.profile.socialMediaUrl}`}
                           className="text-sm text-blue-500 hover:underline"
                           target="_blank"
                           rel="noreferrer"
                         >
-                          {tx.profile}
+                          {tx.recipient.profile.socialMediaUrl}
                         </a>
-                        {tx.message && (
+                        {tx.specialMessage && (
                           <p className="text-sm mt-1 text-muted-foreground">
-                            {tx.message.length > 100
-                              ? `${tx.message.slice(0, 100)}...`
-                              : tx.message}
+                            {tx.specialMessage.length > 100
+                              ? `${tx.specialMessage.slice(0, 100)}...`
+                              : tx.specialMessage}
                           </p>
                         )}
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">+ ${tx.amount}</p>
-                      <p className="text-sm text-muted-foreground">{tx.time}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(tx.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-                  {i < transactions.length - 1 && <Separator />}
+                  {i < filteredDonations.length - 1 && <Separator />}
                 </div>
               ))}
             </div>

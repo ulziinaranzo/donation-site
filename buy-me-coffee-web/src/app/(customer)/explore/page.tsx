@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { SidebarLeft } from "../components/Sidebar";
 
 const datas = [
   {
@@ -35,7 +34,6 @@ const datas = [
 export default function Home() {
   return (
     <div className="flex h-screen mt-[44px]">
-      <SidebarLeft />
 
       <main className="flex-1  p-[24px]">
         <div className="flex justify-center flex-col gap-[24px] mb-[50px] pl-[10%]">

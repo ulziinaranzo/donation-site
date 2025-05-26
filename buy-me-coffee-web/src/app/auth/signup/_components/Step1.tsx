@@ -77,8 +77,8 @@ export const Step1 = ({
         <div className="text-xl font-semibold text-gray-900">
           Шинэ бүртгэл үүсгэх
         </div>
-        <p className="text-md text-gray-600">Бүртгүүлээд хоолоо захиалаарай.</p>
         <form onSubmit={handleSubmit(onSubmit)}>
+          <p className="text-[16px] font-[500]">Имэйл</p>
           <Controller
             name="email"
             control={control}
@@ -90,13 +90,14 @@ export const Step1 = ({
                   type="email"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500  mt-1">
                     {errors.email.message}
                   </p>
                 )}
               </div>
             )}
           />
+          <p className="text-[16px] font-[500]">Нууц үг</p>
           <Controller
             name="password"
             control={control}
@@ -113,6 +114,7 @@ export const Step1 = ({
               </div>
             )}
           />
+          
           <Controller
             name="confirmPassword"
             control={control}
@@ -121,7 +123,7 @@ export const Step1 = ({
                 <Input
                   {...field}
                   type={showPassword ? "text" : "password"}
-                  placeholder="Нууц үг дахин"
+                  placeholder="Нууц үгээ давтан оруулна уу"
                 />
                 {errors.confirmPassword && (
                   <p className="text-red-500">

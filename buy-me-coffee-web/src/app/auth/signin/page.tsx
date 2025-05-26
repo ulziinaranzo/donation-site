@@ -41,7 +41,6 @@ const SignInPage = () => {
     try {
       await signIn(data.email, data.password);
       console.log("Амжилттай нэвтэрлээ");
-      router.push("/");
     } catch (error) {
       console.error("Нэвтрэхэд алдаа гарлаа:", error);
     }

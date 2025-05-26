@@ -34,14 +34,14 @@ export default function CompleteProfilePage() {
     mode: "onChange",
   });
 
-  const onSubmit = (data: ProfileFormData) => {
-    try {
-      const { data } = await api.post("/profile/:userId",
-       {avatarImage, about, name, socialMediaUrl, backgroundImage, successMessage}
-      )
-    }
-    toast.success("Амжилттай профайл үүслээ")
-  };
+  // const onSubmit = (data: ProfileFormData) => {
+  //   try {
+  //     const { data } = await api.post("/profile/:userId",
+  //      {avatarImage, about, name, socialMediaUrl, backgroundImage, successMessage}
+  //     )
+  //   }
+  //   toast.success("Амжилттай профайл үүслээ")
+  // };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

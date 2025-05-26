@@ -57,9 +57,9 @@ export const EditPageDialog = () => {
   const onSubmit = (data: EditPageDialogFormData) => {
     console.log("updated profile", data);
     toast.success("Амжилттай шинэчлэгдлээ");
-    setImagePreview(null); // Clear the preview
-    reset(); // Reset form
-    setOpen(false); // Close dialog
+    setImagePreview(null); 
+    reset(); 
+    setOpen(false); 
   };
 
   return (

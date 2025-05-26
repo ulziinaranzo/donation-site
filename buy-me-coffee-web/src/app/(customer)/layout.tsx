@@ -1,22 +1,16 @@
+// app/layout.tsx эсвэл app/dashboard/layout.tsx
 "use client";
 
-import { Home, Settings, User, Compass } from "lucide-react";
-import DonationsPage from "./HomePage";
-import { ChangePassword } from "../(customer)/_components/ChangePassword";
-import ChangePaymentDetails from "../(customer)/_components/ChangePaymentDetails";
-import UserPage from "../(customer)/page/[id]/page";
+import { Compass, Home, Settings, User } from "lucide-react";
+import React from "react";
 
-export default function MyPageWithSidebar() {
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Link copied to clipboard!");
-  };
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen mt-[44px]">
+    <div className="flex min-h-screen mt-[44px]">
       <aside className="w-[331px] bg-white p-4 pl-[80px]">
         <nav className="flex flex-col space-y-2">
           <a
-            href="/dashboard"
+            href="/"
             className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
           >
             <Home className="w-4 h-4" />
@@ -30,7 +24,7 @@ export default function MyPageWithSidebar() {
             <span>Explore</span>
           </a>
           <a
-            href="/profile"
+            href="/page"
             className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
           >
             <User className="w-4 h-4" />
@@ -46,9 +40,7 @@ export default function MyPageWithSidebar() {
         </nav>
       </aside>
 
-      <main className="flex-1 p-[24px]">
-        <UserPage />
-      </main>
+      <main className="flex-1 bg-white">{children}</main>
     </div>
   );
 }

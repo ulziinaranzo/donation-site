@@ -51,8 +51,8 @@ export const Step = ({
         <div className="text-xl font-semibold text-gray-900">
           Шинэ бүртгэл үүсгэх
         </div>
-        <p className="text-md text-gray-600">Бүртгүүлээд хоолоо захиалаарай.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <p className="text-[16px] font-[500]">Хэрэглэгчийн нэр</p>
           <Controller
             name="username"
             control={control}
