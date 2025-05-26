@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@radix-ui/react-separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Anchor, CameraIcon, Coffee, PictureInPicture } from "lucide-react";
+import { CameraIcon, Coffee } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useParams } from "next/navigation";
-import { EditPageDialog } from "../components/EditPageDialog";
+import { api } from "@/axios";
+import { useAuth, User } from "@/app/_components/AuthProvider";
+import { EditPageDialog } from "@/app/components/EditPageDialog";
 
 const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
@@ -19,29 +21,32 @@ const CLOUD_NAME = "dxhmgs7wt";
 type Params = {
   id: string;
 };
-type User = {
-  name: string;
-  email: string;
-};
 
 export default function UserPage() {
-  //     const { id } = useParams<Params>()
-  //     const [user, setUser] = useState<User>(null)
-  // useEffect(() => {
-  //     const getUser = async () => {
-  //         const { data } = await axios.get(`http://localhost:3001/page/${id}?language=en-Us`,
-  //             {
-  //                 headers: {
-  //                     Authorization: `Bearer ${Access_Token}`
-  //                 }
-  //             }
-  //         )
-  //                     setUser(data)
-  //     }
-  //             getUser()
-  // }, [id])
-
+  const { user } = useAuth();
+  const { id } = useParams<Params>();
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState("");
+
+  useEffect(() => {
+    const getUser = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get(`/donation/received/${user?.id}`);
+        setData(response.data.donations || []);
+        console.log(response.data.donations);
+      } catch (error) {
+        console.error("Donation-ийг авахад алдаа гарлаа", error);
+        toast.error("Мэдээллийг авахад алдаа гарлаа");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) getUser();
+  }, [id, user?.id]);
+
   const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -53,23 +58,26 @@ export default function UserPage() {
       );
       return response.data.secure_url;
     } catch (error) {
-      toast.error("Error uploading image");
+      toast.error("Зураг байрлуулахад алдаа гарлаа");
       return null;
     }
   };
+  {
+    console.log("BG Image:", user?.profile.backgroundImage);
+  }
   return (
     <div className="w-full mx-auto p-4 relative">
       <div className="w-full h-[319px] bg-gray-200 relative rounded-md overflow-hidden">
-        {profileImage && (
+        {user?.profile?.backgroundImage && (
           <img
-            src={profileImage}
+            src={user.profile.backgroundImage}
             alt="cover"
             className="w-full h-full object-cover"
           />
         )}
         <input
           type="file"
-          className="w-full h-[319px] text-transparent bg-[gray]"
+          className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
@@ -79,110 +87,147 @@ export default function UserPage() {
             }
           }}
         />
-
-        <button className="w-[181px] h-[40px] rounded-lg bg-black text-white flex items-center justify-center gap-[8px] text-[14px] absolute top-1/2 left-1/2 z-20">
-          <CameraIcon className="w-[16px] h-[16px]" />
+        <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 z-20 w-[181px] h-[40px] rounded-lg bg-black text-white flex items-center justify-center gap-2 text-sm">
+          <CameraIcon className="w-4 h-4" />
           Add cover page
         </button>
       </div>
 
-      <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 gap-[20px] z-30 flex">
-        <div className="flex flex-col gap-[20px] w-[632px]">
+      <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 z-30 flex gap-[100px]">
+        <div className="flex flex-col gap-5 w-[632px]">
           <Card className="shadow-sm">
-            <div className="flex justify-between pl-[24px] pr-[24px]">
-              <div className="flex gap-[12px]">
-                <Avatar className="w-[48px] h-[48px]">
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    className="w-[48px] h-[48px]"
-                  />
-                  <AvatarFallback className="w-[48px] h-[48px]">
-                    CN
+            <div className="flex justify-between items-center px-6 pt-4">
+              <div className="flex gap-3 items-center">
+                <Avatar className="w-12 h-12">
+                  <AvatarImage src={user?.profile?.avatarImage || ""} />
+                  <AvatarFallback>
+                    {user?.profile?.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
-
-                <div className="font-[700] text-[20px]">Jake</div>
+                <div className="font-bold text-lg">
+                  {user?.profile?.name || "Unnamed"}
+                </div>
               </div>
-              <div className="w-[96px]">
-                <EditPageDialog />
-              </div>
+              <EditPageDialog />
             </div>
-            <CardHeader className="text-lg font-semibold">
-              About Jake
-            </CardHeader>
+            <CardHeader>About {user?.profile?.name}</CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                I'm a typical person who enjoys exploring different things. I
-                also make music art as a hobby. Follow me along.
+                {user?.profile?.about || "No description provided."}
               </p>
             </CardContent>
           </Card>
+
+          {/* Social Media */}
           <Card className="shadow-sm">
-            <CardHeader className="text-lg font-semibold">
-              Social Media
-            </CardHeader>
+            <CardHeader>Social Media</CardHeader>
             <CardContent>
               <a
-                href="https://buymeacoffee.com/spacerutz44"
-                className="text-sm break-all hover:underline text-black"
+                href={user?.profile?.socialMediaUrl || "#"}
+                className="text-sm break-all hover:underline text-blue-600"
                 target="_blank"
               >
-                https://buymeacoffee.com/spacerutz44
+                {user?.profile?.socialMediaUrl || "No link provided."}
               </a>
             </CardContent>
           </Card>
-          <Card className="shadow-s">
-            <CardHeader className="text-lg font-semibold">
-              Recent Supporters
-            </CardHeader>
-            <CardContent className="flex flex-col justify-center items-center">
-              <img
-                src="/Images/177043.png"
-                className="flex justify-items-center w-[64px] h-[64px]"
-              />
-              <p className="text-sm text-muted-foreground text-center py-2">
-                Be the first one to support Jake
-              </p>
+
+          <Card className="shadow-sm">
+            <CardHeader>Recent Supporters</CardHeader>
+            <CardContent className="space-y-4">
+              {data.length === 0 ? (
+                <div className="text-center py-4">
+                  <img src="/Images/177043.png" className="mx-auto w-16 h-16" />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Be the first one to support{" "}
+                    {user?.profile?.name || "this user"}.
+                  </p>
+                </div>
+              ) : (
+                data.map((item, i) => (
+                  <div key={item.id}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-3">
+                        <Avatar>
+                          <AvatarImage
+                            src={item.recipient?.profile?.avatarImage || ""}
+                          />
+                          <AvatarFallback>
+                            {item.recipient?.profile?.name?.charAt(0) || "R"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">
+                            {item.recipient?.profile?.name}
+                          </p>
+                          {item.recipient?.profile?.socialMediaUrl && (
+                            <a
+                              href={`https://${item.recipient.profile.socialMediaUrl}`}
+                              className="text-sm text-blue-500 hover:underline"
+                              target="_blank"
+                            >
+                              {item.recipient.profile.socialMediaUrl}
+                            </a>
+                          )}
+                          {item.specialMessage && (
+                            <p className="text-sm mt-1 text-muted-foreground">
+                              {item.specialMessage.length > 100
+                                ? `${item.specialMessage.slice(0, 100)}...`
+                                : item.specialMessage}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">+ ${item.amount}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(item.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    {i < data.length - 1 && <Separator />}
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </div>
-        <Card className="mb-[50px] p-[24px]">
-          <CardHeader className="text-[24px] font-[600] text-left">
-            Buy Jake a Coffee
-          </CardHeader>
 
-          <CardContent className="space-y-4 w-[623px]">
-            <div className="space-y-2">
+        <Card className="mb-[50px] p-[24px] w-[623px]">
+          <CardHeader className="text-2xl font-semibold">
+            Buy {user?.profile?.name || "them"} a Coffee
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
               <Label>Select amount:</Label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap mt-2">
                 {[1, 2, 5, 10].map((amount) => (
                   <Button
                     key={amount}
                     variant="outline"
                     className="bg-[#F4F4F5CC] w-[72px]"
                   >
-                    <Coffee />${amount}
+                    <Coffee className="mr-1" />${amount}
                   </Button>
                 ))}
               </div>
             </div>
-
-            <div className="space-y-2 mt-[32px] mb-[20px]">
-              <Label>Enter BuyMeCoffee or social account URL:</Label>
-              <div className="flex items-center gap-1">
-                <Input placeholder="buymasacoffee.com/your-username" />
-              </div>
+            <div>
+              <Label>Enter your social account URL:</Label>
+              <Input
+                placeholder="buymeacoffee.com/your-username"
+                className="mt-1"
+              />
             </div>
-
-            <div className="space-y-2">
+            <div>
               <Label>Special message:</Label>
               <Textarea
                 placeholder="Please write your message here."
-                className="h-[153px]"
+                className="h-[153px] mt-1"
               />
-              <button className="flex justify-center items-center w-full bg-[black] rounded-lg text-white h-[40px] mt-[32px]">
+              <Button className="w-full mt-4 bg-black text-white">
                 Support
-              </button>
+              </Button>
             </div>
           </CardContent>
         </Card>

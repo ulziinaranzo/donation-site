@@ -35,8 +35,8 @@ export default function HomePage() {
     setLoading(true);
     try {
       const response = await api.get(`/donation/received/${user?.id}`);
-      setDonations(response.data.donations);
-      console.log(response.data.donations)
+      setDonations(response.data.donations || []);
+      console.log(response.data.donations);
     } catch (error) {
       console.error("Donation-ийг авахад алдаа гарлаа", error);
       toast.error("Donation-ийг авахад алдаа гарлаа");
@@ -61,12 +61,16 @@ export default function HomePage() {
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         return new Date(d.createdAt) >= thirtyDaysAgo;
       }
-      return true; 
+      return true;
     })
-.filter((d) => {
-  return amountFilter !== "all" ? d.amount === parseInt(amountFilter) : true;
-})
-  const totalAmount = filteredDonations.reduce((acc, curr) => acc + curr.amount, 0);
+    .filter((d) => {
+      if (!amountFilter || amountFilter === "all") return true;
+      return d.amount === parseInt(amountFilter);
+    });
+  const totalAmount = filteredDonations.reduce(
+    (acc, curr) => acc + curr.amount,
+    0
+  );
 
   return (
     <div className="w-full mx-auto p-10 space-y-6">
@@ -75,7 +79,9 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <Avatar>
               <AvatarImage src={user?.profile?.avatarImage || ""} />
-              <AvatarFallback>{user?.profile?.name?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarFallback className="w-[50px] h-[50px]">
+                {user?.profile?.name?.charAt(0) || "U"}
+              </AvatarFallback>
             </Avatar>
             <div>
               <h2 className="text-[16px] font-[700]">{user?.profile?.name}</h2>
@@ -111,45 +117,53 @@ export default function HomePage() {
         </div>
         <p className="text-3xl font-bold mt-4">${totalAmount}</p>
       </Card>
-<div className="flex justify-between">    
-  <div className="text-lg font-semibold">Recent Transactions </div>
+      <div className="flex justify-between">
+        <div className="text-lg font-semibold">Recent Transactions </div>
         <Select defaultValue="" onValueChange={setAmountFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by amount" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Бүгд</SelectItem>
-                <SelectItem value="1">$1</SelectItem>
-                <SelectItem value="2">$2</SelectItem>
-                <SelectItem value="5">$5</SelectItem>
-                <SelectItem value="10">$10</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select></div>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by amount" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">Бүгд</SelectItem>
+              <SelectItem value="1">$1</SelectItem>
+              <SelectItem value="2">$2</SelectItem>
+              <SelectItem value="5">$5</SelectItem>
+              <SelectItem value="10">$10</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Recent Transactions</CardTitle>
-          
+          <CardTitle className="text-lg font-semibold">
+            Recent Transactions
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-96 pr-4">
             <div className="space-y-6">
               {filteredDonations.length === 0 && (
-                <p className="text-muted-foreground text-sm">Донэйшн олдсонгүй.</p>
+                <p className="text-muted-foreground text-sm">
+                  Донэйшн олдсонгүй.
+                </p>
               )}
               {filteredDonations.map((tx, i) => (
                 <div key={tx.id} className="space-y-2">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-3">
                       <Avatar>
-                        <AvatarImage src={tx.recipient.profile.avatarImage || ""} />
-                        <AvatarFallback>
+                        <AvatarImage
+                          src={tx.recipient.profile.avatarImage || ""}
+                        />
+                        <AvatarFallback className="w-[40px] h-[40px]">
                           {tx.recipient.profile.name?.charAt(0) || "R"}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{tx.recipient.profile.name}</p>
+                        <p className="font-medium">
+                          {tx.recipient.profile.name}
+                        </p>
                         <a
                           href={`https://${tx.recipient.profile.socialMediaUrl}`}
                           className="text-sm text-blue-500 hover:underline"

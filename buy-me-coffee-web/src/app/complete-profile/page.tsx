@@ -8,7 +8,7 @@ import { Camera } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,47 +20,85 @@ import {
 import PaymentForm from "./_components/PaymentForm";
 import { api } from "@/axios";
 import { useAuth } from "../_components/AuthProvider";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
   about: z.string().min(1, "Өөрийн тухай бичнэ үү"),
   url: z.string().url("Зөв URL оруулна уу"),
+  imgUrl: z.string().optional(),
 });
-
-const { user } = useAuth()
-
-const UPLOAD_PRESET = "ml_default";
-const CLOUD_NAME = "dxhmgs7wt";
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
+const UPLOAD_PRESET = "buy-me-coffee";
+const CLOUD_NAME = "dxhmgs7wt";
+
 export default function ChangeCompleteProfilePage() {
-  const [payment, setPayment] = useState<boolean>(false)
+  const { user } = useAuth();
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [payment, setPayment] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isValid },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     mode: "onChange",
   });
 
-  const onSubmit = (data: ProfileFormData) => {
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
     try {
-      const response = await api.put(`/profile/${user?.id}`)
+      const response = await api.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        formData
+      );
+      return response.data.secure_url;
+    } catch (error) {
+      toast.error("Зураг илгээхэд алдаа гарлаа");
+      return null;
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+      const deployed = await uploadImage(file);
+      if (deployed) {
+        setUploadedUrl(deployed);
+        setValue("imgUrl", deployed);
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview("");
+    setUploadedUrl("");
+    setValue("imgUrl", "");
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    try {
+      await api.put(`/profile/${user?.id}`, {
+        ...data,
+        image: uploadedUrl,
+      });
+      toast.success("Амжилттай хадгалагдлаа");
+      setPayment(true);
+    } catch (error) {
+      console.error("Алдаа гарлаа", error);
+      toast.error("Алдаа гарлаа");
     }
   };
 
@@ -68,7 +106,9 @@ export default function ChangeCompleteProfilePage() {
     <div className="flex flex-col bg-whit mb-[32px] mt-[32px] pl-[100px]">
       <Card className="w-[650px] space-y-8">
         <CardHeader>
-          <CardTitle className="text-[16px] font-[700]">Хувийн мэдээлэл</CardTitle>
+          <CardTitle className="text-[16px] font-[700]">
+            Хувийн мэдээлэл
+          </CardTitle>
           <CardDescription>Профайл хуудсаа бөглөнө үү</CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,7 +134,7 @@ export default function ChangeCompleteProfilePage() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleImageChange}
+                    onChange={handleImageSelect}
                   />
                 </label>
               </div>
@@ -109,7 +149,6 @@ export default function ChangeCompleteProfilePage() {
                   <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="about">Өөрийн тухай</Label>
                 <Textarea
@@ -129,21 +168,19 @@ export default function ChangeCompleteProfilePage() {
                   <p className="text-sm text-red-500">{errors.url.message}</p>
                 )}
               </div>
+
+              <Button
+                type="submit"
+                className="w-full h-[40px] mt-4 bg-[black] text-white"
+                disabled={!isValid}
+              >
+                Хадгалах
+              </Button>
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button
-            type="submit"
-            className="w-full h-[40px] mt-4 bg-[black] text-white"
-            disabled={!isValid}
-            onClick={() => {setPayment(true)}}
-          >
-          Хадгалах
-          </Button>
-        </CardFooter>
       </Card>
-      {payment && <PaymentForm/>}
+      {payment && <PaymentForm />}
     </div>
   );
 }

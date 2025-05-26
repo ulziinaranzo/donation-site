@@ -6,6 +6,8 @@ export const signIn: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    console.log(email, password);
+
     const user = await prisma.user.findFirst({ where: { email } });
     if (!user) {
       res.status(404).json({ message: "Имэйл эсвэл нууц үг буруу байна" });

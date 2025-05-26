@@ -15,6 +15,7 @@ export type Profile = {
   avatarImage: string;
   socialMediaUrl: string;
   successMessage: string;
+  backgroundImage: string;
 };
 
 export type BankCard = {
@@ -37,13 +38,15 @@ export interface Donation {
       name: string;
       avatarImage: string;
       socialMediaUrl: string;
+      successMessage: string;
+      backgroundImage: string;
+      about: string;
     };
   };
 }
 
-
 export type User = {
-    id: number;
+  id: number;
   name: string;
   email: string;
   password: string;
@@ -70,6 +73,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signIn = async (email: string, password: string) => {
     try {
       const { data } = await api.post("/auth/signin", { email, password });
+      console.log("dataaaa", data);
+
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);
