@@ -3,12 +3,25 @@
 import { Home, Settings, User, Compass, Sidebar } from "lucide-react";
 import DonationsPage from "./components/HomePage";
 import { SidebarLeft } from "./components/Sidebar";
+import { useAuth } from "./_components/AuthProvider";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 
 export default function MyPageWithSidebar() {
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Link copied to clipboard!");
-  };
+const { user } = useAuth()
+const router = useRouter()
+useEffect(() => {
+  if (user == null) return;
+  if(user) {
+    router.push("/")
+  } else{
+    router.push("/auth/signup")
+  } 
+  
+  } 
+,[user, router])
+
   return (
     <div className="flex h-screen mt-[44px]">
       <SidebarLeft/>

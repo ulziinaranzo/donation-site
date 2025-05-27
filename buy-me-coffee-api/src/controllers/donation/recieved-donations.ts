@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { prisma } from "../../db";
-import { profile } from "console";
 
 export const recievedDonations: RequestHandler = async (req, res) => {
   const userId = Number(req.params.userId);
@@ -15,6 +14,11 @@ export const recievedDonations: RequestHandler = async (req, res) => {
       orderBy: { createdAt: "desc" },
       include: {
         recipient: {
+          include: {
+            profile: true,
+          },
+        },
+        sender: {
           include: {
             profile: true,
           },

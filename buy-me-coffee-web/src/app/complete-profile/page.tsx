@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Camera } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,10 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import PaymentForm from "./_components/PaymentForm";
 import { api } from "@/axios";
 import { useAuth } from "../_components/AuthProvider";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
@@ -35,9 +35,9 @@ const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
 export default function ChangeCompleteProfilePage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
-  const [payment, setPayment] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -82,7 +82,7 @@ export default function ChangeCompleteProfilePage() {
   };
 
   const handleRemoveImage = () => {
-    setImagePreview("");
+    setImagePreview(null);
     setUploadedUrl("");
     setValue("imgUrl", "");
     if (fileRef.current) fileRef.current.value = "";
@@ -95,37 +95,45 @@ export default function ChangeCompleteProfilePage() {
         image: uploadedUrl,
       });
       toast.success("Амжилттай хадгалагдлаа");
-      setPayment(true);
+      router.push("/payment");
     } catch (error) {
-      console.error("Алдаа гарлаа", error);
       toast.error("Алдаа гарлаа");
+      console.error("Error", error)
     }
   };
 
   return (
-    <div className="flex flex-col bg-whit mb-[32px] mt-[32px] pl-[100px]">
+    <div className="flex flex-col bg-white mb-8 mt-8 px-[30%]">
       <Card className="w-[650px] space-y-8">
         <CardHeader>
-          <CardTitle className="text-[16px] font-[700]">
-            Хувийн мэдээлэл
-          </CardTitle>
+          <CardTitle className="text-[16px] font-[700]">Хувийн мэдээлэл</CardTitle>
           <CardDescription>Профайл хуудсаа бөглөнө үү</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="name">Зураг нэмэх</Label>
+                <Label htmlFor="image">Зураг нэмэх</Label>
                 <label
                   htmlFor="image"
                   className="cursor-pointer w-40 h-40 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative"
                 >
                   {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
+                    <div className="relative w-full h-full">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-1 right-1 bg-white bg-opacity-70 rounded-full p-1 hover:bg-opacity-100"
+                        title="Зураг устгах"
+                      >
+                        <X size={18} className="text-gray-700" />
+                      </button>
+                    </div>
                   ) : (
                     <Camera className="w-[28px] h-[28px] text-gray-500" />
                   )}
@@ -134,10 +142,12 @@ export default function ChangeCompleteProfilePage() {
                     type="file"
                     accept="image/*"
                     className="hidden"
+                    ref={fileRef}
                     onChange={handleImageSelect}
                   />
                 </label>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Нэр</Label>
                 <Input
@@ -149,6 +159,7 @@ export default function ChangeCompleteProfilePage() {
                   <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="about">Өөрийн тухай</Label>
                 <Textarea
@@ -163,7 +174,11 @@ export default function ChangeCompleteProfilePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="url">Сошл хуудсын холбоос</Label>
-                <Input id="url" placeholder="https://" {...register("url")} />
+                <Input
+                  id="url"
+                  placeholder="https://"
+                  {...register("url")}
+                />
                 {errors.url && (
                   <p className="text-sm text-red-500">{errors.url.message}</p>
                 )}
@@ -171,7 +186,7 @@ export default function ChangeCompleteProfilePage() {
 
               <Button
                 type="submit"
-                className="w-full h-[40px] mt-4 bg-[black] text-white"
+                className="w-full h-[40px] mt-4 bg-black text-white"
                 disabled={!isValid}
               >
                 Хадгалах
@@ -180,7 +195,6 @@ export default function ChangeCompleteProfilePage() {
           </form>
         </CardContent>
       </Card>
-      {payment && <PaymentForm />}
     </div>
   );
 }

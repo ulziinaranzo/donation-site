@@ -32,6 +32,9 @@ const datas = [
 ];
 
 export default function Home() {
+
+  
+
   return (
     <div className="flex h-screen mt-[44px]">
 

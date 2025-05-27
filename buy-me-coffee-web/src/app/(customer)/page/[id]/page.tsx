@@ -13,7 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useParams } from "next/navigation";
 import { api } from "@/axios";
 import { useAuth, User } from "@/app/_components/AuthProvider";
-import { EditPageDialog } from "@/app/components/EditPageDialog";
+import { EditPageDialog } from "@/app/(customer)/page/[id]/_components/EditPageDialog";
+import { Donate } from "./_components/Donate";
 
 const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
@@ -117,8 +118,6 @@ export default function UserPage() {
               </p>
             </CardContent>
           </Card>
-
-          {/* Social Media */}
           <Card className="shadow-sm">
             <CardHeader>Social Media</CardHeader>
             <CardContent>
@@ -193,44 +192,7 @@ export default function UserPage() {
           </Card>
         </div>
 
-        <Card className="mb-[50px] p-[24px] w-[623px]">
-          <CardHeader className="text-2xl font-semibold">
-            Buy {user?.profile?.name || "them"} a Coffee
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <Label>Select amount:</Label>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {[1, 2, 5, 10].map((amount) => (
-                  <Button
-                    key={amount}
-                    variant="outline"
-                    className="bg-[#F4F4F5CC] w-[72px]"
-                  >
-                    <Coffee className="mr-1" />${amount}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <Label>Enter your social account URL:</Label>
-              <Input
-                placeholder="buymeacoffee.com/your-username"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label>Special message:</Label>
-              <Textarea
-                placeholder="Please write your message here."
-                className="h-[153px] mt-1"
-              />
-              <Button className="w-full mt-4 bg-black text-white">
-                Support
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+<Donate/>
       </div>
     </div>
   );
