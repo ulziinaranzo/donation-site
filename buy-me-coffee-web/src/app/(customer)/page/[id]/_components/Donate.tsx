@@ -1,11 +1,6 @@
 "use client";
 
 import { useAuth } from "@/app/_components/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@radix-ui/react-select";
 import { Coffee } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +8,11 @@ import { useForm } from "react-hook-form";
 import { api } from "@/axios";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const donateSchema = z.object({
   amount: z.string().min(1, "Donation-ий дүн сонгоно уу"),
@@ -40,7 +40,7 @@ export const Donate = () => {
     try {
       await api.put("/donation/create-donation", {
         ...data,
-        amount: Number(data.amount), // backend-д number гэж үзвэл
+        amount: Number(data.amount),
       });
       toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
       console.log("Donation", data);
@@ -69,7 +69,9 @@ export const Donate = () => {
                 <Button
                   key={amount}
                   type="button"
-                  variant={selectedAmount === amount.toString() ? "default" : "outline"}
+                  variant={
+                    selectedAmount === amount.toString() ? "default" : "outline"
+                  }
                   className="bg-[#F4F4F5CC] w-[72px]"
                   onClick={() => handleAmountClick(amount)}
                 >
@@ -78,7 +80,9 @@ export const Donate = () => {
               ))}
             </div>
             {errors.amount && (
-              <p className="text-sm text-red-500 mt-1">{errors.amount.message}</p>
+              <p className="text-sm text-red-500 mt-1">
+                {errors.amount.message}
+              </p>
             )}
           </div>
           <div>
@@ -90,7 +94,9 @@ export const Donate = () => {
               {...register("socialMediaUrl")}
             />
             {errors.socialMediaUrl && (
-              <p className="text-sm text-red-500">{errors.socialMediaUrl.message}</p>
+              <p className="text-sm text-red-500">
+                {errors.socialMediaUrl.message}
+              </p>
             )}
           </div>
           <div>
@@ -102,10 +108,16 @@ export const Donate = () => {
               {...register("specialMessage")}
             />
             {errors.specialMessage && (
-              <p className="text-sm text-red-500">{errors.specialMessage.message}</p>
+              <p className="text-sm text-red-500">
+                {errors.specialMessage.message}
+              </p>
             )}
           </div>
-          <Button className="w-full mt-4 bg-black text-white" type="submit" disabled={!isValid}>
+          <Button
+            className="w-full mt-4 bg-black text-white"
+            type="submit"
+            disabled={!isValid}
+          >
             Support
           </Button>
         </CardContent>

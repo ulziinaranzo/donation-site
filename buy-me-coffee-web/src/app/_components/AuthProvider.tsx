@@ -47,7 +47,7 @@ export interface Donation {
 
 export type User = {
   id: number;
-  name: string;
+  username: string;
   email: string;
   password: string;
   profile: Profile;
@@ -96,16 +96,17 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       localStorage.setItem("token", data.token);
       setUser(data.user);
       router.push("/complete-profile");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Бүртгүүлэхэд алдаа гарлаа");
+      const msg = error?.response?.data?.message || "Бүртгүүлэхэд алдаа гарлаа";
+      toast.error(msg);
     }
   };
 
   const signOut = async () => {
     localStorage.removeItem("token");
     setUser(undefined);
-    router.push("/login");
+    router.push("/auth/signin");
   };
 
   const getUser = async () => {

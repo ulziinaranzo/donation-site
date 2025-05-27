@@ -19,9 +19,7 @@ export const updateProfile: RequestHandler = async (req, res) => {
   } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
       res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
@@ -29,14 +27,27 @@ export const updateProfile: RequestHandler = async (req, res) => {
     }
 
     const existingProfile = await prisma.profile.findUnique({
-      where: { id: userId },
+      where: { userId },
     });
+
+    if (existingProfile && existingProfile.name !== name) {
+      const nameExists = await prisma.profile.findUnique({
+        where: { name },
+      });
+
+      if (nameExists) {
+        res
+          .status(400)
+          .json({ message: "Энэ нэр аль хэдийн бүртгэлтэй байна" });
+        return;
+      }
+    }
 
     let updatedProfile;
 
     if (existingProfile) {
       updatedProfile = await prisma.profile.update({
-        where: { id: userId },
+        where: { userId },
         data: {
           avatarImage,
           about,
@@ -66,8 +77,10 @@ export const updateProfile: RequestHandler = async (req, res) => {
       message: "Амжилттай хэрэглэгчийн профайлыг шинэчлэлээ",
       updatedProfile,
     });
+    return;
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({ message: "Серверийн алдаа, дахин оролдоно уу" });
+    return;
   }
 };

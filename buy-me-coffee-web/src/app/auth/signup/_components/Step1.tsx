@@ -71,6 +71,7 @@ export const Step1 = ({
       console.error("Бүртгэхэд алдаа гарлаа");
     }
   };
+
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col space-y-6 mb-[100px]">
@@ -90,14 +91,12 @@ export const Step1 = ({
                   type="email"
                 />
                 {errors.email && (
-                  <p className="text-red-500  mt-1">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-red-500  mt-1">{errors.email.message}</p>
                 )}
               </div>
             )}
           />
-          <p className="text-[16px] font-[500]">Нууц үг</p>
+          <p className="text-[16px] font-[500] mt-1">Нууц үг</p>
           <Controller
             name="password"
             control={control}
@@ -114,7 +113,7 @@ export const Step1 = ({
               </div>
             )}
           />
-          
+
           <Controller
             name="confirmPassword"
             control={control}
