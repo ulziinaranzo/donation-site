@@ -64,12 +64,12 @@ export const Header = () => {
           ) : (
             <>
               <Link href="/auth/signin">
-                <button className="bg-black text-white rounded-full px-4 py-2 text-sm h-10">
+                <button className="bg-black text-white rounded-full px-4 py-2 text-sm h-10 cursor-pointer">
                   Нэвтрэх
                 </button>
               </Link>
               <Link href="/auth/signup">
-                <button className="bg-black text-white rounded-full px-4 py-2 text-sm h-10">
+                <button className="bg-black text-white rounded-full px-4 py-2 text-sm h-10 cursor-pointer">
                   Бүртгүүлэх
                 </button>
               </Link>

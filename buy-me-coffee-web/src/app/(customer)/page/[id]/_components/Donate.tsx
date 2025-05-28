@@ -22,7 +22,10 @@ const donateSchema = z.object({
 
 type DonationFormData = z.infer<typeof donateSchema>;
 
-export const Donate = () => {
+interface DonateProps {
+  recipientId: number;
+}
+export const Donate = ({ recipientId }: DonateProps) => {
   const { user } = useAuth();
   const [selectedAmount, setSelectedAmount] = useState<string>("");
 
@@ -41,6 +44,7 @@ export const Donate = () => {
       await api.put("/donation/create-donation", {
         ...data,
         amount: Number(data.amount),
+        recipientId
       });
       toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
       console.log("Donation", data);

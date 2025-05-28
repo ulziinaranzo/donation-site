@@ -12,14 +12,13 @@ export default function MyPageWithSidebar() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.push("/auth/signup");
-    } else {
-      router.push("/");
-    }
-  }, [user, loading, router]);
+useEffect(() => {
+  if (loading) return;
+
+  if (!user) {
+    router.push("/auth/signup");
+  }
+}, [user, loading, router]);
 
   if (loading) {
     return <div>Loading...</div>;

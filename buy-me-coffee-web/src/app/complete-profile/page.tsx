@@ -8,7 +8,7 @@ import { Camera, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -26,7 +26,7 @@ const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
   about: z.string().min(1, "Өөрийн тухай бичнэ үү"),
   url: z.string().url("Зөв URL оруулна уу"),
-  imgUrl: z.string().optional(),
+  imgUrl: z.string().url().optional()
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -48,7 +48,7 @@ export default function ChangeCompleteProfilePage() {
     formState: { errors, isValid },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    mode: "onChange",
+    mode: "all",
   });
 
   const uploadImage = async (file: File) => {
@@ -91,8 +91,7 @@ export default function ChangeCompleteProfilePage() {
   const onSubmit = async (data: ProfileFormData) => {
     try {
       await api.put(`/profile/${user?.id}`, {
-        ...data,
-        image: uploadedUrl,
+        ...data,  imgUrl: data.imgUrl || uploadedUrl,
       });
       toast.success("Амжилттай хадгалагдлаа");
       router.push("/payment");
@@ -101,6 +100,12 @@ export default function ChangeCompleteProfilePage() {
       console.error("Error", error)
     }
   };
+
+  useEffect(() => {
+  if (uploadedUrl) {
+    setValue("imgUrl", uploadedUrl, { shouldValidate: true });
+  }
+}, [uploadedUrl, setValue]);
 
   return (
     <div className="flex flex-col bg-white mb-8 mt-8 px-[30%]">

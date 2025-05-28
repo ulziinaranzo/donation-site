@@ -14,8 +14,10 @@ model User {
   username  String     @unique
   profile   Profile?
   bankCard  BankCard?
-  donations Donation[] @relation("SentDonations") // sender тал
-  received  Donation[] @relation("ReceivedDonations") // recipient тал
+  donations Donation[] @relation("SentDonations") 
+  received  Donation[] @relation("ReceivedDonations")
+  name         String?  
+  isAnonymous Boolean @default(false) 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -41,6 +43,7 @@ model BankCard {
     lastName   String
     cardNumber String
     expiryDate DateTime
+    cvc         String  @default("")
     userId     Int      @unique
     user       User     @relation(fields: [userId], references: [id])
     createdAt  DateTime @default(now())

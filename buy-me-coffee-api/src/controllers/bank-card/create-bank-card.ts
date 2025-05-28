@@ -8,12 +8,15 @@ export const createBankCard: RequestHandler = async (req, res) => {
     res.status(400).json({ message: "ID буруу" });
     return;
   }
-  const { country, firstName, lastName, cardNumber, expiryDate } = req.body;
 
-  if (!country || !firstName || !lastName || !cardNumber || !expiryDate) {
+  const { country, firstName, lastName, cardNumber, expiryDate, cvc } = req.body;
+
+  if (!country || !firstName || !lastName || !cardNumber || !expiryDate || !cvc) {
     res.status(400).json({ message: "Мэдээлэл дутуу байна" });
     return;
   }
+
+
   try {
     const bankCard = await prisma.bankCard.create({
       data: {
@@ -22,6 +25,7 @@ export const createBankCard: RequestHandler = async (req, res) => {
         lastName,
         cardNumber,
         expiryDate,
+        cvc,
         user: { connect: { id: userId } },
       },
     });

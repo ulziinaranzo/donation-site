@@ -24,6 +24,7 @@ export type BankCard = {
   lastName: string;
   cardNumber: string;
   expiryDate: Date;
+  cvc: string
 };
 
 export interface Donation {
@@ -67,7 +68,7 @@ const AuthContext = createContext({} as AuthContextType);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
-  const [user, setUser] = useState<User | undefined>();
+  const [user, setUser] = useState<User | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
 
   const signIn = async (email: string, password: string) => {
@@ -78,7 +79,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);
-      router.push("/");
+      router.push("/create-profile");
     } catch (error) {
       console.error(error);
       toast.error("Нэвтрэхэд алдаа гарлаа");
@@ -92,6 +93,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         password,
         username,
       });
+      console.log(data.token)
+    
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);

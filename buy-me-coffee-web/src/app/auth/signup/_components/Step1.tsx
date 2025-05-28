@@ -65,8 +65,6 @@ export const Step1 = ({
     try {
       await signUp(dataToSave.email, dataToSave.password, data.username);
       console.log("Бүртгэл амжилттай");
-      handleNext();
-      router.push("/");
     } catch (error) {
       console.error("Бүртгэхэд алдаа гарлаа");
     }
