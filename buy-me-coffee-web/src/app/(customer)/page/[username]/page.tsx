@@ -1,5 +1,3 @@
-"use client"
-
 "use client";
 import { CameraIcon } from "lucide-react";
 import axios from "axios";
@@ -7,12 +5,10 @@ import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/axios";
-import { Donation, useAuth } from "@/app/_components/AuthProvider";
-import { ProfileDetails } from "@/app/(customer)/page/[id]/_components/ProfileDetails";
-import { DonationsDetails } from "@/app/(customer)/page/[id]/_components/DonationsDetails";
-import { Donate } from "@/app/(customer)/page/[id]/_components/Donate";
-import { DonateUsingUsername } from "../_components/DonateUsingUsername";
-
+import { Donation, useAuth, User } from "@/app/_components/AuthProvider";
+import { Donate } from "./_components/Donate";
+import { ProfileDetails } from "./_components/ProfileDetails";
+import { DonationsDetails } from "./_components/DonationsDetails";
 
 const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
@@ -22,7 +18,7 @@ type Params = {
 };
 
 export default function UserPage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { username } = useParams<Params>();
   const [data, setData] = useState<Donation[]>([]);
   const [anonymousUser, setAnonymousUser] = useState<any>(null);
@@ -33,14 +29,17 @@ export default function UserPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState("");
   const [deployedImg, setDeployedImg] = useState("");
-
+  const [profileUser, setProfileUser] = useState<User | null>("")
+ 
   useEffect(() => {
     const getUser = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`/profile/view/${username}`);
+        const recipientProfile = await api.get(`/${username}`)
+        setProfileUser(recipientProfile)
+        const response = await api.get(`/donation/received/${username}`);
         setData(response.data.donations || []);
-
+        
         const anonRes = await api.get("/user/9");
         setAnonymousUser(anonRes.data.user);
       } catch (error) {
@@ -51,8 +50,8 @@ export default function UserPage() {
       }
     };
 
-    if (username) getUser();
-  }, [username]);
+    if (username && user?.username) getUser();
+  }, [username, user?.username]);
 
   const uploadImage = async (file: File) => {
     if (!file) return;
@@ -62,7 +61,7 @@ export default function UserPage() {
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        `http://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData
       );
       const imageUrl = response.data.url;
@@ -82,6 +81,7 @@ export default function UserPage() {
       setDeployedImg(uploadedUrl);
       const url = URL.createObjectURL(file);
       setPreview(url);
+      setBackgroundImage(uploadedUrl);
     }
   };
 
@@ -95,6 +95,8 @@ export default function UserPage() {
       setBackgroundImage(user.profile.backgroundImage);
     }
   }, [user]);
+
+  
 
   return (
     <div className="w-full mx-auto p-4 relative">
@@ -127,11 +129,11 @@ export default function UserPage() {
 
       <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 z-30 flex gap-[100px]">
         <div className="flex flex-col gap-5 w-[632px]">
-          <ProfileDetails />
+          <ProfileDetails user={user}/>
           <DonationsDetails data={data} anonymousUser={anonymousUser} />
         </div>
 
-        <DonateUsingUsername recipientId={Number(username)} />
+        <Donate recipientId={profileUser?.id}} />
       </div>
     </div>
   );

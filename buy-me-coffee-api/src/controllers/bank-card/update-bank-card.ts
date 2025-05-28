@@ -2,7 +2,9 @@ import { RequestHandler } from "express";
 import { prisma } from "../../db";
 
 export const updateBankCard: RequestHandler = async (req, res) => {
+  
   try {
+       
     const bankCardId = Number(req.params.bankCardId);
     const { expiryDate, firstName, lastName, country, cardNumber } = req.body;
 
@@ -10,6 +12,7 @@ export const updateBankCard: RequestHandler = async (req, res) => {
       res.status(400).json({ message: "ID буруу байна" });
       return;
     }
+
     const updatedBankCard = await prisma.bankCard.update({
       where: { id: bankCardId },
       data: {

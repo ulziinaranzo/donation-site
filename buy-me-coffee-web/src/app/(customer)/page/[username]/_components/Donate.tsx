@@ -41,7 +41,7 @@ export const Donate = ({ recipientId }: DonateProps) => {
 
   const onSubmit = async (data: DonationFormData) => {
     try {
-      await api.put("/donation/create-donation", {
+      await api.post("/donation/create-donation", {
         ...data,
         amount: Number(data.amount),
         recipientId

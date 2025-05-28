@@ -17,6 +17,7 @@ export const signIn: RequestHandler = async (req, res) => {
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       res.status(401).json({ message: "Имэйл эсвэл нууц үг буруу байна" });
+      return
     }
 
     const token = jwt.sign(

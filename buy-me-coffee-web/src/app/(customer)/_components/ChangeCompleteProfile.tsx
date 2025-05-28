@@ -20,6 +20,7 @@ import { api } from "@/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_components/AuthProvider";
+import axios from "axios";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
@@ -38,7 +39,7 @@ export default function ChangeCompleteProfilePage() {
   const { user } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [loadingImage, setLoadingImage] = useState(false);
+  const [loadingImage, setLoadingImage] = useState<boolean>(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const {
@@ -64,8 +65,8 @@ export default function ChangeCompleteProfilePage() {
     setLoadingImage(true);
 
     try {
-      const response = await api.post(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      const response = await axios.post(
+        `http://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData
       );
       return response.data.secure_url;
@@ -104,7 +105,6 @@ export default function ChangeCompleteProfilePage() {
         avatarImage: data.avatarImage || uploadedUrl,
       });
       toast.success("Амжилттай хадгалагдлаа");
-      router.push("/payment");
     } catch (error) {
       toast.error("Алдаа гарлаа");
       console.error("Error updating profile:", error);
@@ -123,6 +123,13 @@ export default function ChangeCompleteProfilePage() {
       document.body.style.overflow = "auto";
     }
   }, [isSubmitting, loadingImage]);
+
+  useEffect(() => {
+  if (user?.profile?.avatarImage) {
+    setImagePreview(user.profile.avatarImage);
+    setUploadedUrl(user.profile.avatarImage);
+  }
+}, [user?.profile?.avatarImage]);
 
   return (
     <div className="relative flex flex-col bg-white mb-8 mt-8 ">

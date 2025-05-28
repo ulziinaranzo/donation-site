@@ -34,7 +34,7 @@ export default function HomePage() {
   const getDonations = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/donation/received/${user?.id}`);
+      const response = await api.get(`/donation/received/${user?.username}`);
       setDonations(response.data.donations || []);
       console.log(response.data.donations);
     } catch (error) {
@@ -81,7 +81,7 @@ export default function HomePage() {
             <Avatar>
               <AvatarImage
                 src={user?.profile?.avatarImage || ""}
-                className="w-[48px] h-[48px]"
+                className="w-[48px] h-[48px] rounded-full"
               />
               <AvatarFallback className="w-[50px] h-[50px]">
                 {user?.profile?.name?.charAt(0) || "U"}
@@ -102,7 +102,7 @@ export default function HomePage() {
             Share page link <ArrowUpRight size={16} />
           </Button>
         </div>
-        <Separator className="my-4" />
+        <Separator  />
         <div className="flex flex-wrap gap-4 items-center">
           <CardTitle className="text-[600] text-[20px]">Орлого</CardTitle>
 

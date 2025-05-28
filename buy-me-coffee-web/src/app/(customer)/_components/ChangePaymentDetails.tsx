@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ const paymentSchema = z.object({
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
 export default function PaymentForm() {
-  const { user } = useAuth();
+  const { user, getUser, setUser } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const expiry = user?.bankCard?.expiryDate
@@ -70,16 +70,17 @@ export default function PaymentForm() {
     try {
       setLoading(true);
 
-      await api.put(`/bank-card/${user?.id}`, {
+      const formattedExpiryDate = `${data.expiryYear}-${data.expiryMonth}-01T00:00:00Z`
+
+      await api.put(`/bank-card/${user?.bankCard?.id}`, {
         ...data,
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         cardNumber: data.cardNumber.replace(/-/g, ""),
-        expiryDate: `${data.expiryMonth}/${data.expiryYear}`,
+        expiryDate: formattedExpiryDate
       });
-
+      await getUser()
       toast.success("Амжилттай хадгалагдлаа");
-      router.push("/");
     } catch (error) {
       toast.error("Карт нэмэхэд алдаа гарлаа");
     } finally {
@@ -87,8 +88,9 @@ export default function PaymentForm() {
     }
   };
 
+
   return (
-    <div className="min-h-0 flex items-start bg-white">
+    <div className="min-h-0 flex items-start bg-white w-[650px]">
       <Card className="w-full max-w-2xl shadow-md border border-gray-200">
         <CardHeader>
           <CardTitle className="text-2xl">Банкны мэдээлэл</CardTitle>
@@ -233,8 +235,8 @@ export default function PaymentForm() {
             <div className="flex justify-end pt-4">
               <Button
                 type="submit"
-                className="w-[246px] bg-black"
-                disabled={!isValid || loading}
+                className="w-full bg-black"
+                disabled={ loading}
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? "Түр хүлээнэ үү..." : "Хадгалах"}

@@ -48,7 +48,7 @@ export const ChangePassword = () => {
   const onSubmit = async (data: NewPasswordData) => {
     setLoading(true)
     try {
-      const response = await api.post(`auth/change-password/${user?.id}`,
+      const response = await api.put(`auth/change-password/${user?.id}`,
         {
           currentPassword: data.currentPassword,
           newPassword: data.password
@@ -104,7 +104,7 @@ export const ChangePassword = () => {
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm password"
+                placeholder="Нууц үгээ давтан оруулна уу"
                 {...register("confirmPassword")}
               />
               {errors.confirmPassword && (
@@ -114,7 +114,7 @@ export const ChangePassword = () => {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Button type="submit" className="w-full h-[40px] mt-4 bg-black" disabled={!isValid || loading}>
+          <Button type="submit" className="w-full h-[40px] mt-4 bg-black disabled:opacity-50 disabled:cursor-not-allowed" disabled={!isValid || loading}>
             {loading && <Loader2 className="h-4 w-4 animate-spin" /> }
             {loading ? "Түр хүлээнэ үү..." : "Хадгалах"}
           </Button>

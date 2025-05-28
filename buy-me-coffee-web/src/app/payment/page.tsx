@@ -41,7 +41,6 @@ export default function PaymentForm() {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -66,14 +65,15 @@ export default function PaymentForm() {
     try {
       setLoading(true);
 
+      const formattedExpiryDate = `${data.expiryYear}-${data.expiryMonth}-01T00:00:00Z`
+
       await api.post(`/bank-card/${user?.id}`, {
         ...data,
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         cardNumber: data.cardNumber.replace(/-/g, ""),
-        expiryDate: `${data.expiryMonth}/${data.expiryYear}`,
+        expiryDate: formattedExpiryDate
       });
-
       toast.success("Амжилттай хадгалагдлаа");
       router.push("/");
     } catch (error) {
@@ -134,7 +134,6 @@ export default function PaymentForm() {
           {errors.cardNumber && <p className="text-sm text-red-500">{errors.cardNumber.message}</p>}
         </div>
 
-        {/* Дуусах огноо + CVC */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label>Сар *</Label>

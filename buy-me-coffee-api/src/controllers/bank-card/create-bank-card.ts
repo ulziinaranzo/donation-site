@@ -18,17 +18,28 @@ export const createBankCard: RequestHandler = async (req, res) => {
 
 
   try {
-    const bankCard = await prisma.bankCard.create({
-      data: {
-        country,
-        firstName,
-        lastName,
-        cardNumber,
-        expiryDate,
-        cvc,
-        user: { connect: { id: userId } },
-      },
-    });
+   const bankCard = await prisma.bankCard.upsert({
+  where: {
+    userId: userId,
+  },
+  update: {
+    country,
+    firstName,
+    lastName,
+    cardNumber,
+    expiryDate,
+    cvc,
+  },
+  create: {
+    country,
+    firstName,
+    lastName,
+    cardNumber,
+    expiryDate,
+    cvc,
+    user: { connect: { id: userId } },
+  },
+});
     res.status(201).json({ message: "Банкны карт нэмэгдлээ", bankCard });
   } catch (error) {
     console.error(error);

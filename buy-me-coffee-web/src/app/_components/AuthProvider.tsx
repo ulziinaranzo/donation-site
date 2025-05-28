@@ -19,6 +19,7 @@ export type Profile = {
 };
 
 export type BankCard = {
+  id: number
   country: string;
   firstName: string;
   lastName: string;
@@ -76,11 +77,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     try {
       const { data } = await api.post("/auth/signin", { email, password });
       console.log("dataaaa", data);
-
+      console.log("token", data.token);
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);
-      router.push("/create-profile");
+      router.push("/");
     } catch (error) {
       console.error(error);
       toast.error("Нэвтрэхэд алдаа гарлаа");

@@ -57,7 +57,7 @@ export const SuccessPage = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
         <Card className="w-[650px]">
       <CardHeader>
-        <CardTitle className="text-[16px] font-[700]">Амжилттай donate хийлээ</CardTitle>
+        <CardTitle className="text-[16px] font-[700]">Амжилттай donate хийх үед гарах мессеж</CardTitle>
         <CardDescription>Confirmation message</CardDescription>
       </CardHeader>
       <CardContent>

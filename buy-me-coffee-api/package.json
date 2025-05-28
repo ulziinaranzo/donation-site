@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "nodemon api/index.ts",
     "setup": "prisma generate",
-    "migrate": "prisma migrate dev",
-    "seed": "prisma db seed"
+    "migrate": "prisma migrate dev"
   },
   "keywords": [],
   "author": "",

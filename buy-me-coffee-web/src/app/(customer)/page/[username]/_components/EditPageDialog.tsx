@@ -47,7 +47,7 @@ export const EditPageDialog = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     setValue,
     reset,
   } = useForm<EditPageDialogFormData>({
@@ -224,7 +224,7 @@ export const EditPageDialog = () => {
           <DialogFooter className="flex justify-end">
             <Button
               type="submit"
-              disabled={!isValid || loading}
+              disabled={loading}
               className="w-[246px] h-[40px] mt-4"
             >
               {loading ? "Хадгалж байна..." : "Save changes"}

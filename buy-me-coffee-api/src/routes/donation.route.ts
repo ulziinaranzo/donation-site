@@ -7,7 +7,7 @@ const donationRouter = Router();
 
 donationRouter
   .post("/donation/create-donation", createDonation)
-  .get("/donation/received/:userId", recievedDonations)
+  .get("/donation/received/:username", recievedDonations)
   .get("/donation/total-earnings/:userId", totalEarningsFromDonations);
 
 export default donationRouter;

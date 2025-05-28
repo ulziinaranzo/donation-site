@@ -2,15 +2,22 @@ import { RequestHandler } from "express";
 import { prisma } from "../../db";
 
 export const recievedDonations: RequestHandler = async (req, res) => {
-  const userId = Number(req.params.userId);
-  if (!userId || isNaN(userId)) {
-    res.status(400).json({ message: "ID буруу" });
+  const username = req.params.username;
+  if (!username) {
+    res.status(400).json({ message: "Хэрэглэгчийн нэр буруу" });
     return;
   }
 
   try {
+
+    const user = await prisma.user.findUnique({where: { username }})
+
+    if (!user) {
+      res.status(404).json({message: "Хэрэглэгч олдсонгүй"})
+      return
+    }
     const recievedDonations = await prisma.donation.findMany({
-      where: { recipientId: userId },
+      where: { recipientId: user.id },
       orderBy: { createdAt: "desc" },
       include: {
         recipient: {
