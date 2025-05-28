@@ -125,7 +125,7 @@ export default function ChangeCompleteProfilePage() {
   }, [isSubmitting, loadingImage]);
 
   return (
-    <div className="relative flex flex-col bg-white mb-8 mt-8 px-[30%]">
+    <div className="relative flex flex-col bg-white mb-8 mt-8 ">
       {(isSubmitting || loadingImage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <Loader2 className="w-10 h-10 animate-spin text-gray-800" />
@@ -134,7 +134,9 @@ export default function ChangeCompleteProfilePage() {
 
       <Card className="w-[650px] space-y-8">
         <CardHeader>
-          <CardTitle className="text-[16px] font-[700]">Хувийн мэдээлэл</CardTitle>
+          <CardTitle className="text-[16px] font-[700]">
+            Хувийн мэдээлэл
+          </CardTitle>
           <CardDescription>Профайл хуудсаа бөглөнө үү</CardDescription>
         </CardHeader>
         <CardContent>

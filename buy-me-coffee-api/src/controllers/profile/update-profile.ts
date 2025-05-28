@@ -30,7 +30,7 @@ export const updateProfile: RequestHandler = async (req, res) => {
       where: { userId },
     });
 
-    if (existingProfile && existingProfile.name !== name) {
+    if (existingProfile && name && existingProfile.name !== name) {
       const nameExists = await prisma.profile.findUnique({
         where: { name },
       });

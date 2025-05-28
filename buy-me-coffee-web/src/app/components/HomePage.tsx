@@ -67,6 +67,7 @@ export default function HomePage() {
       if (!amountFilter || amountFilter === "all") return true;
       return d.amount === parseInt(amountFilter);
     });
+
   const totalAmount = filteredDonations.reduce(
     (acc, curr) => acc + curr.amount,
     0
@@ -78,7 +79,10 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Avatar>
-              <AvatarImage src={user?.profile?.avatarImage || ""} />
+              <AvatarImage
+                src={user?.profile?.avatarImage || ""}
+                className="w-[48px] h-[48px]"
+              />
               <AvatarFallback className="w-[50px] h-[50px]">
                 {user?.profile?.name?.charAt(0) || "U"}
               </AvatarFallback>
@@ -117,8 +121,9 @@ export default function HomePage() {
         </div>
         <p className="text-3xl font-bold mt-4">${totalAmount}</p>
       </Card>
-      <div className="flex justify-between">
-        <div className="text-lg font-semibold">Recent Transactions </div>
+
+      <div className="flex justify-between items-center">
+        <div className="text-lg font-semibold">Recent Transactions</div>
         <Select defaultValue="" onValueChange={setAmountFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by amount" />
@@ -134,15 +139,16 @@ export default function HomePage() {
           </SelectContent>
         </Select>
       </div>
+
       <Card className="p-6">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
             Recent Transactions
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-96 pr-4">
-            <div className="space-y-6">
+        <CardContent className="w-full">
+          <ScrollArea className="h-96 w-full p-2">
+            <div className="space-y-6 w-full">
               {filteredDonations.length === 0 && (
                 <p className="text-muted-foreground text-sm">
                   Донэйшн олдсонгүй.
@@ -150,11 +156,12 @@ export default function HomePage() {
               )}
               {filteredDonations.map((tx, i) => (
                 <div key={tx.id} className="space-y-2">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start w-full">
                     <div className="flex gap-3">
                       <Avatar>
                         <AvatarImage
                           src={tx.recipient.profile.avatarImage || ""}
+                          className="w-[40px] h-[40px]"
                         />
                         <AvatarFallback className="w-[40px] h-[40px]">
                           {tx.recipient.profile.name?.charAt(0) || "R"}

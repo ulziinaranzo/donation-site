@@ -18,7 +18,7 @@ type Params = {
 };
 
 export default function UserPage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { id } = useParams<Params>();
   const [data, setData] = useState<Donation[]>([]);
   const [anonymousUser, setAnonymousUser] = useState<any>(null);
@@ -36,7 +36,7 @@ export default function UserPage() {
       try {
         const response = await api.get(`/donation/received/${id}`);
         setData(response.data.donations || []);
-
+        
         const anonRes = await api.get("/user/9");
         setAnonymousUser(anonRes.data.user);
       } catch (error) {

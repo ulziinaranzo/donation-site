@@ -24,7 +24,7 @@ export type BankCard = {
   lastName: string;
   cardNumber: string;
   expiryDate: Date;
-  cvc: string
+  cvc: string;
 };
 
 export interface Donation {
@@ -62,6 +62,7 @@ type AuthContextType = {
   signUp: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
   setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+  getUser: () => Promise<void>;
 };
 
 const AuthContext = createContext({} as AuthContextType);
@@ -93,8 +94,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         password,
         username,
       });
-      console.log(data.token)
-    
+      console.log(data.token);
+
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
       setUser(data.user);
@@ -135,7 +136,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     getUser();
   }, []);
   return (
-    <AuthContext.Provider value={{ user, signIn, signUp, signOut, setUser }}>
+    <AuthContext.Provider
+      value={{ user, signIn, signUp, signOut, setUser, getUser }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

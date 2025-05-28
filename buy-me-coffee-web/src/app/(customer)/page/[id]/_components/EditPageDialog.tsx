@@ -37,7 +37,7 @@ const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
 export const EditPageDialog = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, getUser } = useAuth();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -120,7 +120,10 @@ export const EditPageDialog = () => {
         ...data,
         avatarImage: deployedImg,
       });
+      console.log("zurag", data);
+
       toast.success("Амжилттай шинэчлэгдлээ");
+      await getUser();
       setImagePreview(null);
       reset();
       setOpen(false);
@@ -221,7 +224,7 @@ export const EditPageDialog = () => {
           <DialogFooter className="flex justify-end">
             <Button
               type="submit"
-              // disabled={!isValid || loading}
+              disabled={!isValid || loading}
               className="w-[246px] h-[40px] mt-4"
             >
               {loading ? "Хадгалж байна..." : "Save changes"}
