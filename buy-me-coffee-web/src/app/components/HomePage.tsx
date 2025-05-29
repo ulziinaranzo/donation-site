@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/axios";
 import { toast } from "sonner";
 import { ArrowUpRight } from "lucide-react";
-import { Donation, useAuth } from "../_components/AuthProvider";
+import { Donation, useAuth, User } from "../_components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,6 +25,7 @@ export default function HomePage() {
   const [timeFilter, setTimeFilter] = useState("30days");
   const [amountFilter, setAmountFilter] = useState("");
   const { user } = useAuth();
+  const [anonymousUser, setAnonymousUser] = useState<User | null>(null)
 
   useEffect(() => {
     if (!user) return;
@@ -36,7 +37,9 @@ export default function HomePage() {
     try {
       const response = await api.get(`/donation/received/${user?.username}`);
       setDonations(response.data.donations || []);
-      console.log(response.data.donations);
+      
+      const anonUser = await api.get("/user/9")
+      setAnonymousUser(anonUser.data.profile)
     } catch (error) {
       console.error("Donation-ийг авахад алдаа гарлаа", error);
       toast.error("Donation-ийг авахад алдаа гарлаа");
@@ -80,7 +83,7 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <Avatar>
               <AvatarImage
-                src={user?.profile?.avatarImage || ""}
+                src={user?.profile?.avatarImage || "/Images/user-icon.png"}
                 className="w-[48px] h-[48px] rounded-full"
               />
               <AvatarFallback className="w-[50px] h-[50px]">
@@ -160,7 +163,7 @@ export default function HomePage() {
                     <div className="flex gap-3">
                       <Avatar>
                         <AvatarImage
-                          src={tx.recipient.profile.avatarImage || ""}
+                          src={tx.recipient.profile.avatarImage || "/Images/user-icon.png"}
                           className="w-[40px] h-[40px]"
                         />
                         <AvatarFallback className="w-[40px] h-[40px]">

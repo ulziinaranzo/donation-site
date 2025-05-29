@@ -38,7 +38,7 @@ export const Header = () => {
                     <AvatarImage
                       src={
                         user?.profile?.avatarImage ||
-                        "https://github.com/shadcn.png"
+                        "/Images/user-icon.png"
                       }
                       className="w-[40px] h-[40px] rounded-full"
                     />

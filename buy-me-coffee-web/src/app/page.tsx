@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Settings, User, Compass, Sidebar } from "lucide-react";
+import { Home, Settings, User, Compass, Sidebar, Loader2 } from "lucide-react";
 import DonationsPage from "./components/HomePage";
 import { SidebarLeft } from "./components/Sidebar";
 import { useAuth } from "./_components/AuthProvider";
@@ -13,15 +13,16 @@ export default function MyPageWithSidebar() {
   const [loading, setLoading] = useState<boolean>(false);
 
 useEffect(() => {
-  if (loading) return;
 
   if (!user) {
     router.push("/auth/signup");
+  } else {
+    setLoading(false)
   }
-}, [user, loading, router]);
+}, [user, loading]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (loading || user === undefined) {
+    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-15 h-15 animate-spin text-gray-600"/></div>;
   }
 
   return (

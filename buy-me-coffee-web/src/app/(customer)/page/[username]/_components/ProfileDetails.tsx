@@ -2,11 +2,13 @@
 
 import { Profile, useAuth, User } from "@/app/_components/AuthProvider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback,  } from "@radix-ui/react-avatar";
 import { EditPageDialog } from "./EditPageDialog";
+import { AvatarImage } from "@/components/ui/avatar";
 
 type ProfileDetailsProps = {
-  user?: User;
+  user?: User | null;
+
 };
 
 export const ProfileDetails = ({ user }: ProfileDetailsProps) => {
@@ -25,7 +27,7 @@ export const ProfileDetails = ({ user }: ProfileDetailsProps) => {
       <div className="flex justify-between items-center px-6 pt-4">
         <div className="flex gap-3 items-center">
           <Avatar className="w-12 h-12 flex justify-center ">
-            <AvatarImage src={user?.profile?.avatarImage} />
+            <AvatarImage src={user?.profile?.avatarImage || "/Images/user-icon.png"} />
             <AvatarFallback>{name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="font-bold text-lg">{name}</div>

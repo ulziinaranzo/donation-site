@@ -17,7 +17,7 @@ export const SidebarLeft = () => {
           <span>Нүүр хуудас</span>
         </Link>
         <Link
-          href={`/page/${user?.id}`}
+           href={`/page/${user?.username}`}
           className="flex w-[250px] h-[40px] items-center space-x-2 text-sm font-medium text-gray-700 hover:text-black hover:bg-gray-200 rounded-lg pl-[10px]"
         >
           <User className="w-4 h-4" />

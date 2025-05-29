@@ -1,24 +1,32 @@
 import { RequestHandler } from "express";
 import { prisma } from "../../db";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 export const signUpController: RequestHandler = async (req, res) => {
   const { email, password, username } = req.body;
 
+  if (!email || !password || !username) {
+    res.status(400).json({ message: "Имэйл, нууц үг болон хэрэглэгчийн нэр шаардлагатай" });
+  return 
+  }
+
   try {
-    const existingUser = await prisma.user.findFirst({ where: { email } });
-    if (existingUser) {
-      res.status(400).json({ message: "Ийм имэйлтэй хэрэглэгч байна" });
-      return;
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUserByEmail) {
+      res.status(400).json({ message: "Энэ имэйл аль хэдийн бүртгэлтэй байна" });
+    return 
     }
 
-    const existingUsername = await prisma.user.findFirst({
+    const existingUserByUsername = await prisma.user.findUnique({
       where: { username },
     });
-    if (existingUsername) {
-      res.status(400).json({ message: "Ийм нэртэй хэрэглэгчийн нэр байна" });
-      return;
+
+    if (existingUserByUsername) {
+      res.status(400).json({ message: "Энэ username аль хэдийн бүртгэлтэй байна" });
+    return 
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,23 +34,24 @@ export const signUpController: RequestHandler = async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         email,
-        username,
         password: hashedPassword,
+        username,
       },
     });
 
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_NUUTS!, {
-      expiresIn: "7d",
+    res.status(201).json({
+      message: "Хэрэглэгч амжилттай бүртгэгдлээ",
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        username: newUser.username,
+      },
     });
-
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    res.status(201).json({ user: userWithoutPassword, token });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Signup error:", error);
     res.status(500).json({
-      message: "Сервер дээр алдаа гарлаа",
-      error: (error as Error).message,
+      message: "Серверийн алдаа",
+      error: error.message || String(error),
     });
   }
 };

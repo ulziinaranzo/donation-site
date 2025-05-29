@@ -5,6 +5,7 @@ import { getUsersController } from "../controllers/user/get-users";
 import { updateUserController } from "../controllers/user/update-user";
 import { deleteUser } from "../controllers/user/delete-user";
 import { authenticationMiddleware } from "../middlewares/authentication-middleware";
+import { getUserByUsername } from "../controllers/user/get-user-by-username";
 
 const userRouter = Router();
 
@@ -13,6 +14,7 @@ userRouter
   .get("/user/:id", getUserController)
   .get("/user", getUsersController)
   .put("/user/:id", authenticationMiddleware, updateUserController)
-  .delete("/user/:id", deleteUser);
+  .delete("/user/:id", deleteUser)
+  .get("/:username", getUserByUsername)
 
 export default userRouter;

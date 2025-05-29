@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/app/_components/AuthProvider";
+import { useAuth, User } from "@/app/_components/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -9,14 +9,14 @@ import { Donation } from "@/app/_components/AuthProvider";
 type DonationDetailsTypes = {
   data: Donation[];
   anonymousUser: any;
+  profileUser: User | null
 };
 
-export const DonationsDetails = ({ data, anonymousUser }: DonationDetailsTypes) => {
+export const DonationsDetails = ({ data, anonymousUser, profileUser }: DonationDetailsTypes) => {
   const { user } = useAuth();
 
   return (
     <>
-      {/* Social Media */}
       <Card className="shadow-sm">
         <CardHeader>Social Media</CardHeader>
         <CardContent>
@@ -30,7 +30,6 @@ export const DonationsDetails = ({ data, anonymousUser }: DonationDetailsTypes) 
         </CardContent>
       </Card>
 
-      {/* Supporters */}
       <Card className="shadow-sm">
         <CardHeader>Recent Supporters</CardHeader>
         <CardContent className="space-y-4">
@@ -52,7 +51,7 @@ export const DonationsDetails = ({ data, anonymousUser }: DonationDetailsTypes) 
                   <div className="flex justify-between items-start">
                     <div className="flex gap-3">
                       <Avatar>
-                        <AvatarImage src={senderProfile?.avatarImage || ""} />
+                        <AvatarImage src={senderProfile?.avatarImage || "/Images/user-icon.png"} />
                         <AvatarFallback>
                           {senderProfile?.name?.charAt(0) || "A"}
                         </AvatarFallback>

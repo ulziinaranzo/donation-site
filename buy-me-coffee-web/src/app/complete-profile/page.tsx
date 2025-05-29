@@ -99,10 +99,10 @@ export default function completeProfilePage() {
         avatarImage: data.avatarImage || uploadedUrl,
       });
       toast.success("Амжилттай хадгалагдлаа");
-    } catch (error: any) {
-      toast.error("Алдаа гарлаа");
-      console.error("Error updating profile:", error.response?.data || error.message);
-    }
+      router.push("/payment")
+} catch (error: any) {
+  console.error("Алдаа:", error.response?.data || error.message);
+}
   };
 
   useEffect(() => {

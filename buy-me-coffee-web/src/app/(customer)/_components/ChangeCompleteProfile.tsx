@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_components/AuthProvider";
 import axios from "axios";
+import Image from "next/image";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
@@ -160,7 +161,7 @@ export default function ChangeCompleteProfilePage() {
                   ) : imagePreview || uploadedUrl ? (
                     <div className="relative w-full h-full">
                       <img
-                        src={imagePreview || uploadedUrl}
+                        src={imagePreview || uploadedUrl || "/Images/user-icon.png"}
                         alt="Preview"
                         className="w-full h-full object-cover rounded-full"
                       />

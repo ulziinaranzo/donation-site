@@ -21,7 +21,7 @@ export default function UserPage() {
   const { user, setUser } = useAuth();
   const { username } = useParams<Params>();
   const [data, setData] = useState<Donation[]>([]);
-  const [anonymousUser, setAnonymousUser] = useState<any>(null);
+  const [anonymousUser, setAnonymousUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(
     user?.profile?.backgroundImage || null
@@ -29,14 +29,15 @@ export default function UserPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState("");
   const [deployedImg, setDeployedImg] = useState("");
-  const [profileUser, setProfileUser] = useState<User | null>("")
+  const [profileUser, setProfileUser] = useState<User | null>(null)
  
   useEffect(() => {
     const getUser = async () => {
       setLoading(true);
       try {
-        const recipientProfile = await api.get(`/${username}`)
-        setProfileUser(recipientProfile)
+        const { data } = await api.get(`/${username}`)
+        setProfileUser(data.user)
+
         const response = await api.get(`/donation/received/${username}`);
         setData(response.data.donations || []);
         
@@ -129,11 +130,15 @@ export default function UserPage() {
 
       <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 z-30 flex gap-[100px]">
         <div className="flex flex-col gap-5 w-[632px]">
-          <ProfileDetails user={user}/>
-          <DonationsDetails data={data} anonymousUser={anonymousUser} />
+          <ProfileDetails user={profileUser} />
+<DonationsDetails data={data} anonymousUser={anonymousUser} profileUser={profileUser} />
         </div>
 
-        <Donate recipientId={profileUser?.id}} />
+        {profileUser ? (
+  <Donate recipientId={profileUser.id} />
+) : (
+  <div>Ачааллаж байна...</div>
+)}
       </div>
     </div>
   );
