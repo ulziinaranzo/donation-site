@@ -161,7 +161,7 @@ export const EditPageDialog = () => {
             >
               {imagePreview ? (
                 <img
-                  src={imagePreview || user?.profile.avatarImage}
+                  src={imagePreview || user?.profile.avatarImage || "/Images/user-icon.png"}
                   className="w-full h-full object-cover"
                 />
               ) : (

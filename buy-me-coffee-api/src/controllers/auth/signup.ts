@@ -11,6 +11,16 @@ export const signUpController: RequestHandler = async (req, res) => {
   }
 
   try {
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existingUserByUsername) {
+      res
+        .status(400)
+        .json({ message: "Энэ username аль хэдийн бүртгэлтэй байна" });
+      return;
+    }
     const existingUserByEmail = await prisma.user.findUnique({
       where: { email },
     });
@@ -20,14 +30,6 @@ export const signUpController: RequestHandler = async (req, res) => {
     return 
     }
 
-    const existingUserByUsername = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (existingUserByUsername) {
-      res.status(400).json({ message: "Энэ username аль хэдийн бүртгэлтэй байна" });
-    return 
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

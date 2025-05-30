@@ -26,7 +26,7 @@ export const createProfile: RequestHandler = async (req, res) => {
       return
     }
 
-    const existingProfile = await prisma.profile.findUnique({
+    const existingProfile = await prisma.profile.findFirst({
       where: { userId: user.id },
     });
 

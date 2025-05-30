@@ -3,6 +3,7 @@ import { prisma } from "../../db";
 
 export const createDonation: RequestHandler = async (req, res) => {
   const { amount, specialMessage, recipientId } = req.body;
+  const senderId = req.userId ? Number(req.userId) : null
 
   if (!amount || !recipientId) {
     res.status(400).json({ message: "Дутуу мэдээлэл байна" });
@@ -15,7 +16,20 @@ export const createDonation: RequestHandler = async (req, res) => {
         amount: Number(amount),
         specialMessage,
         recipient: { connect: { id: Number(recipientId) } },
+        sender: senderId ? { connect: { id: senderId } } : undefined
       },
+      include: {
+        sender: {
+          include: {
+            profile: true
+          }
+        },
+        recipient: {
+          include: {
+            profile: true
+          }
+        }
+      }
     });
 
     res.status(200).json({ message: "Амжилттай donation илгээлээ", donation });

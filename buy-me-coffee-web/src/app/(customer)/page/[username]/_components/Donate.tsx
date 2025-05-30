@@ -13,9 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { SuccessMessage } from "./SuccessPage";
 
 const donateSchema = z.object({
-  amount: z.string().min(1, "Donation-ий дүн сонгоно уу"),
+  amount: z.coerce.number().min(1, "Donation-ий дүн сонгоно уу"),
   socialMediaUrl: z.string().min(1, "Сошиал медиа холбоосоо тавиарай"),
   specialMessage: z.string().min(1, "Сэтгэлийн үгээ оруулна уу"),
 });
@@ -25,9 +26,11 @@ type DonationFormData = z.infer<typeof donateSchema>;
 interface DonateProps {
   recipientId: number;
 }
+
 export const Donate = ({ recipientId }: DonateProps) => {
   const { user } = useAuth();
-  const [selectedAmount, setSelectedAmount] = useState<string>("");
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
   const {
     register,
@@ -43,11 +46,12 @@ export const Donate = ({ recipientId }: DonateProps) => {
     try {
       await api.post("/donation/create-donation", {
         ...data,
-        amount: Number(data.amount),
-        recipientId
+        recipientId,
+        ...(user?.id && { senderId: user.id }),
       });
       toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
       console.log("Donation", data);
+      setIsDialogOpen(true)
     } catch (error) {
       toast.error("Алдаа гарлаа");
       console.error("Error", error);
@@ -55,8 +59,8 @@ export const Donate = ({ recipientId }: DonateProps) => {
   };
 
   const handleAmountClick = (amount: number) => {
-    setSelectedAmount(amount.toString());
-    setValue("amount", amount.toString(), { shouldValidate: true });
+    setSelectedAmount(amount);
+    setValue("amount", amount, { shouldValidate: true });
   };
 
   return (
@@ -73,9 +77,7 @@ export const Donate = ({ recipientId }: DonateProps) => {
                 <Button
                   key={amount}
                   type="button"
-                  variant={
-                    selectedAmount === amount.toString() ? "default" : "outline"
-                  }
+                  variant={selectedAmount === amount ? "default" : "outline"}
                   className="bg-[#F4F4F5CC] w-[72px]"
                   onClick={() => handleAmountClick(amount)}
                 >
@@ -125,7 +127,10 @@ export const Donate = ({ recipientId }: DonateProps) => {
             Support
           </Button>
         </CardContent>
+        
       </Card>
     </form>
+    
   );
 };
+export default Donate;

@@ -82,7 +82,7 @@ export const Step1 = ({
             name="email"
             control={control}
             render={({ field }) => (
-              <div className="mt-4">
+              <div className="mt-4 w-[300px]">
                 <Input
                   {...field}
                   placeholder="Имэйлээ оруулна уу"
@@ -99,7 +99,7 @@ export const Step1 = ({
             name="password"
             control={control}
             render={({ field }) => (
-              <div className="mt-4">
+              <div className="mt-4 w-[300px]">
                 <Input
                   {...field}
                   type={showPassword ? "text" : "password"}

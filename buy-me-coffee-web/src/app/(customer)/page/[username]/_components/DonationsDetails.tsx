@@ -1,19 +1,19 @@
 "use client";
 
-import { useAuth, User } from "@/app/_components/AuthProvider";
+import { User, Donation } from "@/app/_components/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Donation } from "@/app/_components/AuthProvider";
 
-type DonationDetailsTypes = {
+type DonationsDetailsProps = {
   data: Donation[];
-  anonymousUser: any;
-  profileUser: User | null
+  profileUser: User;
 };
 
-export const DonationsDetails = ({ data, anonymousUser, profileUser }: DonationDetailsTypes) => {
-  const { user } = useAuth();
+export const DonationsDetails = ({
+  data,
+  profileUser,
+}: DonationsDetailsProps) => {
 
   return (
     <>
@@ -21,37 +21,35 @@ export const DonationsDetails = ({ data, anonymousUser, profileUser }: DonationD
         <CardHeader>Social Media</CardHeader>
         <CardContent>
           <a
-            href={user?.profile?.socialMediaUrl || "#"}
+            href={profileUser?.profile?.socialMediaUrl || "#"}
             className="text-sm break-all hover:underline text-blue-600"
             target="_blank"
           >
-            {user?.profile?.socialMediaUrl || "No link provided."}
+            {profileUser?.profile?.socialMediaUrl || "No link provided."}
           </a>
         </CardContent>
       </Card>
 
       <Card className="shadow-sm">
         <CardHeader>Recent Supporters</CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 max-h-[400px] overflow-y-auto pr-5">
           {data.length === 0 ? (
             <div className="text-center py-4">
               <img src="/Images/177043.png" className="mx-auto w-16 h-16" />
               <p className="text-sm text-muted-foreground mt-2">
-                Be the first one to support{" "}
-                {user?.profile?.name || "this user"}.
+                Be the first one to support {profileUser?.profile?.name || "this user"}.
               </p>
             </div>
           ) : (
             data.map((item, i) => {
-              const senderProfile =
-                item.sender?.profile || anonymousUser?.profile;
+              const senderProfile = item.sender?.profile;
 
               return (
                 <div key={item.id}>
                   <div className="flex justify-between items-start">
                     <div className="flex gap-3">
                       <Avatar>
-                        <AvatarImage src={senderProfile?.avatarImage || "/Images/user-icon.png"} />
+                        <AvatarImage src={senderProfile?.avatarImage} />
                         <AvatarFallback>
                           {senderProfile?.name?.charAt(0) || "A"}
                         </AvatarFallback>
@@ -80,9 +78,6 @@ export const DonationsDetails = ({ data, anonymousUser, profileUser }: DonationD
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">+ ${item.amount}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(item.createdAt).toLocaleDateString()}
-                      </p>
                     </div>
                   </div>
                   {i < data.length - 1 && <Separator />}

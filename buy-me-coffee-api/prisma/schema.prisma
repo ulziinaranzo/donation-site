@@ -24,7 +24,7 @@ model User {
 
 model Profile {
     id              Int      @id @default(autoincrement())
-    name            String   @unique
+    name            String   
     about           String
     avatarImage     String
     socialMediaUrl  String

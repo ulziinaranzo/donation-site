@@ -45,6 +45,14 @@ export interface Donation {
       about: string;
     };
   };
+  sender?: {
+    isAnonymous: boolean;
+    profile?: {
+      name: string;
+      avatarImage: string;
+      socialMediaUrl: string;
+    };
+  };
 }
 
 export type User = {
@@ -80,6 +88,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       console.log("token", data.token);
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
+      setAuthToken(data.token); 
       setUser(data.user);
       router.push("/");
     } catch (error) {
@@ -99,6 +108,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
+      setAuthToken(data.token); 
       setUser(data.user);
       router.push("/complete-profile");
     } catch (error: any) {

@@ -5,6 +5,8 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { api } from "@/axios";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   username: z
@@ -33,18 +35,40 @@ export const Step = ({
   const {
     control,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: data.username || "",
     },
+    mode: "onBlur"
   });
+
+  const checkUsernameAvailability = async (username: string) => {
+    try {
+      const res = await api.get(`/auth/check-username`, {
+        params: { username },
+      });
+
+      // Хэрвээ username олдоогүй (available) бол true буцаана
+      if (res.status === 200) {
+        return true;
+      }
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        return "Энэ хэрэглэгчийн нэр аль хэдийн бүртгэлтэй байна.";
+      }
+      return "Алдаа гарлаа. Дахин оролдоно уу.";
+    }
+  };
+  
 
   const onSubmit = (savingData: SignupFormData) => {
     saveFormDataChange(savingData);
     handleNext();
   };
+
   return (
     <div className="w-[800px] h-screen flex justify-center items-center pb-[100px]">
       <div className="flex p-8 space-y-6 flex-col items-start">
@@ -56,6 +80,7 @@ export const Step = ({
           <Controller
             name="username"
             control={control}
+            rules={{validate: checkUsernameAvailability}}
             render={({ field }) => (
               <div>
                 <Input
@@ -63,12 +88,13 @@ export const Step = ({
                   placeholder="Хэрэглэгчийн нэрээ оруулна уу"
                   type="text"
                   className="w-[300px]"
+                  onBlur={async () => {field.onBlur();
+                    const isValid = await trigger("username")
+                    if (!isValid && errors.username?.message) {
+                      toast.error(errors.username.message);
+                    }}}
+                    
                 />
-                {errors.username && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.username.message}
-                  </p>
-                )}
               </div>
             )}
           />

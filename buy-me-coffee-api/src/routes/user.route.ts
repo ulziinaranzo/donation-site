@@ -15,6 +15,6 @@ userRouter
   .get("/user", getUsersController)
   .put("/user/:id", authenticationMiddleware, updateUserController)
   .delete("/user/:id", deleteUser)
-  .get("/:username", getUserByUsername)
+  .get("/user/username/:username", getUserByUsername);
 
 export default userRouter;

@@ -1,107 +1,89 @@
 "use client";
+
 import { CameraIcon } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/axios";
 import { Donation, useAuth, User } from "@/app/_components/AuthProvider";
-import { Donate } from "./_components/Donate";
 import { ProfileDetails } from "./_components/ProfileDetails";
 import { DonationsDetails } from "./_components/DonationsDetails";
+import { Donate } from "./_components/Donate";
 
-const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
+const UPLOAD_PRESET = "buy-me-coffee";
 
 type Params = {
   username: string;
 };
 
 export default function UserPage() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const { username } = useParams<Params>();
-  const [data, setData] = useState<Donation[]>([]);
-  const [anonymousUser, setAnonymousUser] = useState<User | null>(null);
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [profileUser, setProfileUser] = useState<User | null>(null);
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [backgroundImage, setBackgroundImage] = useState<string | null>(
-    user?.profile?.backgroundImage || null
-  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [preview, setPreview] = useState("");
-  const [deployedImg, setDeployedImg] = useState("");
-  const [profileUser, setProfileUser] = useState<User | null>(null)
- 
+
+  const fetchProfileAndDonations = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: userData } = await api.get(`/${username}`);
+      setProfileUser(userData.user);
+      setBackgroundImage(userData.user?.profile?.backgroundImage || null);
+
+      const { data: donationData } = await api.get(
+        `/donation/received/${username}`
+      );
+      setDonations(donationData.donations || []);
+    } catch (error) {
+      toast.error("Мэдээллийг авахад алдаа гарлаа");
+    } finally {
+      setLoading(false);
+    }
+  }, [username]);
+
   useEffect(() => {
-    const getUser = async () => {
-      setLoading(true);
-      try {
-        const { data } = await api.get(`/${username}`)
-        setProfileUser(data.user)
+    if (username) fetchProfileAndDonations();
+  }, [fetchProfileAndDonations]);
 
-        const response = await api.get(`/donation/received/${username}`);
-        setData(response.data.donations || []);
-        
-        const anonRes = await api.get("/user/9");
-        setAnonymousUser(anonRes.data.user);
-      } catch (error) {
-        console.error("Donation-ийг авахад алдаа гарлаа", error);
-        toast.error("Мэдээллийг авахад алдаа гарлаа");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (username && user?.username) getUser();
-  }, [username, user?.username]);
-
-  const uploadImage = async (file: File) => {
-    if (!file) return;
+  const handleImageUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
-      const response = await axios.post(
-        `http://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData
       );
-      const imageUrl = response.data.url;
-      await api.put(`/profile/${user?.id}`, {
-        backgroundImage: imageUrl,
-      });
-      return imageUrl;
-    } catch (error) {
+      const imageUrl = res.data.url;
+
+      if (user?.id) {
+        await api.put(`/profile/${user.id}`, { backgroundImage: imageUrl });
+        setBackgroundImage(imageUrl);
+      }
+    } catch {
       toast.error("Зураг байрлуулахад алдаа гарлаа");
-      console.error("Зураг deploy хийхэд алдаа гарлаа", error);
     }
   };
 
-  const handleUpload = async (file: File) => {
-    const uploadedUrl = await uploadImage(file);
-    if (uploadedUrl) {
-      setDeployedImg(uploadedUrl);
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-      setBackgroundImage(uploadedUrl);
-    }
-  };
-
-  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) await handleUpload(file);
+    if (file) await handleImageUpload(file);
   };
 
-  useEffect(() => {
-    if (user?.profile?.backgroundImage) {
-      setBackgroundImage(user.profile.backgroundImage);
-    }
-  }, [user]);
+  if (loading || !profileUser) {
+    return <div className="text-center p-4">Ачааллаж байна...</div>;
+  }
 
-  
+  const isOwnPage = user?.id === profileUser.id;
 
   return (
-    <div className="w-full mx-auto p-4 relative">
-      <div className="w-full h-[319px] bg-gray-200 relative rounded-md overflow-hidden">
+    <div className="w-full p-4 relative">
+      <div className="w-full h-[319px] bg-gray-200 rounded-md overflow-hidden relative">
         {backgroundImage && (
           <img
             src={backgroundImage}
@@ -109,17 +91,17 @@ export default function UserPage() {
             className="w-full h-full object-cover"
           />
         )}
-        {String(user?.id) && (
+        {!isOwnPage && user?.id && (
           <>
             <input
               type="file"
               ref={fileInputRef}
               className="hidden"
-              onChange={handleImageSelect}
+              onChange={handleFileChange}
             />
             <button
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 z-20 w-[181px] h-[40px] rounded-lg bg-black text-white flex items-center justify-center gap-2 text-sm"
               onClick={() => fileInputRef.current?.click()}
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded flex items-center gap-2 z-20"
             >
               <CameraIcon className="w-4 h-4" />
               Add cover page
@@ -128,17 +110,12 @@ export default function UserPage() {
         )}
       </div>
 
-      <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 z-30 flex gap-[100px]">
+      <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 flex gap-[100px] z-30">
         <div className="flex flex-col gap-5 w-[632px]">
-          <ProfileDetails user={profileUser} />
-<DonationsDetails data={data} anonymousUser={anonymousUser} profileUser={profileUser} />
+          <ProfileDetails user={profileUser} isOwnPage={isOwnPage} />
+          <DonationsDetails data={donations} profileUser={profileUser} />
         </div>
-
-        {profileUser ? (
-  <Donate recipientId={profileUser.id} />
-) : (
-  <div>Ачааллаж байна...</div>
-)}
+        <Donate recipientId={profileUser.id} />
       </div>
     </div>
   );
