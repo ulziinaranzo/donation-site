@@ -1,19 +1,17 @@
-"use client";
-
-import { User } from "@/app/_components/AuthProvider";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EditPageDialog } from "./EditPageDialog";
+import { ProfileWithUser } from "../page";
 
 type ProfileDetailsProps = {
-  user: User;
+  user: ProfileWithUser;
   isOwnPage: boolean;
 };
 
 export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
-  const name = user.profile?.name || "Unnamed";
-  const avatar = user.profile?.avatarImage || "";
-  const about = user.profile?.about || "Хэрэглэгчийн тухай мэдээлэл байхгүй.";
+  const name = user.name || "Unnamed";
+  const avatar = user.avatarImage || "";
+  const about = user.about || "Хэрэглэгчийн тухай мэдээлэл байхгүй.";
 
   return (
     <Card className="shadow-sm">
@@ -25,9 +23,9 @@ export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
           </Avatar>
           <span className="font-bold text-lg">{name}</span>
         </div>
-        {!isOwnPage && <EditPageDialog />}
+        {isOwnPage && <EditPageDialog />}
       </div>
-      <CardHeader>Тухай</CardHeader>
+      <CardHeader>About</CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground">{about}</p>
       </CardContent>

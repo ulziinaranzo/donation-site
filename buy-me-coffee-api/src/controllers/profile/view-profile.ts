@@ -9,6 +9,7 @@ export const viewUser: RequestHandler = async (req, res) => {
       res.status(400).json({ message: "Хэрэглэгч байхгүй байна" });
       return;
     }
+
     const profile = await prisma.profile.findFirst({
       where: { user: { username: username } },
       select: {
@@ -23,10 +24,12 @@ export const viewUser: RequestHandler = async (req, res) => {
         },
       },
     });
+
     if (!profile) {
       res.status(404).json({ message: "Профайл олдсонгүй" });
       return;
     }
+    res.status(200).json(profile);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error try again" });

@@ -1,35 +1,38 @@
 import { RequestHandler } from "express";
 import { prisma } from "../../db";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const signUpController: RequestHandler = async (req, res) => {
   const { email, password, username } = req.body;
 
   if (!email || !password || !username) {
-    res.status(400).json({ message: "Имэйл, нууц үг болон хэрэглэгчийн нэр шаардлагатай" });
-  return 
+    res
+      .status(400)
+      .json({ message: "Имэйл, нууц үг болон хэрэглэгчийн нэр шаардлагатай" });
+    return;
   }
 
   try {
     const existingUserByUsername = await prisma.user.findUnique({
       where: { username },
     });
-
     if (existingUserByUsername) {
       res
         .status(400)
         .json({ message: "Энэ username аль хэдийн бүртгэлтэй байна" });
       return;
     }
+
     const existingUserByEmail = await prisma.user.findUnique({
       where: { email },
     });
-
     if (existingUserByEmail) {
-      res.status(400).json({ message: "Энэ имэйл аль хэдийн бүртгэлтэй байна" });
-    return 
+      res
+        .status(400)
+        .json({ message: "Энэ имэйл аль хэдийн бүртгэлтэй байна" });
+      return;
     }
-
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -41,6 +44,13 @@ export const signUpController: RequestHandler = async (req, res) => {
       },
     });
 
+    const token = jwt.sign(
+      { userId: newUser.id },
+      process.env.JWT_NUUTS as string,
+      {
+        expiresIn: "7d",
+      }
+    );
     res.status(201).json({
       message: "Хэрэглэгч амжилттай бүртгэгдлээ",
       user: {
@@ -48,6 +58,7 @@ export const signUpController: RequestHandler = async (req, res) => {
         email: newUser.email,
         username: newUser.username,
       },
+      token,
     });
   } catch (error: any) {
     console.error("Signup error:", error);

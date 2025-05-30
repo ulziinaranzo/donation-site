@@ -19,7 +19,6 @@ export const authenticationMiddleware: RequestHandler = async (
     const { userId } = jwt.verify(token, process.env.JWT_NUUTS) as {
       userId: string;
     };
-
     (req as any).userId = userId;
     next();
   } catch (error) {

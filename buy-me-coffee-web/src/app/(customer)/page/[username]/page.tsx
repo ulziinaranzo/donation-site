@@ -18,11 +18,30 @@ type Params = {
   username: string;
 };
 
+export type ProfileWithUser = {
+  id: number;
+  name: string;
+  about: string;
+  avatarImage: string;
+  socialMediaUrl: string;
+  backgroundImage?: string;
+  successMessage?: string;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: number;
+    username: string;
+    email?: string;
+  };
+};
+
 export default function UserPage() {
   const { user } = useAuth();
-  const { username } = useParams<Params>();
+  const { username: rawUsername } = useParams<Params>();
+  const username = decodeURIComponent(rawUsername);
   const [donations, setDonations] = useState<Donation[]>([]);
-  const [profileUser, setProfileUser] = useState<User | null>(null);
+  const [profileUser, setProfileUser] = useState<ProfileWithUser | null>(null);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -30,9 +49,10 @@ export default function UserPage() {
   const fetchProfileAndDonations = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: userData } = await api.get(`/${username}`);
-      setProfileUser(userData.user);
+      const { data: userData } = await api.get(`/profile/view/${username}`);
+      setProfileUser(userData);
       setBackgroundImage(userData.user?.profile?.backgroundImage || null);
+      console.log("userData", userData);
 
       const { data: donationData } = await api.get(
         `/donation/received/${username}`
@@ -79,7 +99,7 @@ export default function UserPage() {
     return <div className="text-center p-4">Ачааллаж байна...</div>;
   }
 
-  const isOwnPage = user?.id === profileUser.id;
+  const isOwnPage = user?.id === profileUser.userId;
 
   return (
     <div className="w-full p-4 relative">
@@ -91,7 +111,7 @@ export default function UserPage() {
             className="w-full h-full object-cover"
           />
         )}
-        {!isOwnPage && user?.id && (
+        {isOwnPage && user?.id && (
           <>
             <input
               type="file"

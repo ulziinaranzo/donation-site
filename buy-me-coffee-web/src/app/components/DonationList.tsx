@@ -33,9 +33,7 @@ export const DonationList = ({ donations }: DonationListProps) => {
               const name = isAnonymous
                 ? "Anonymous"
                 : senderProfile?.name || "Unknown";
-              const avatar = isAnonymous
-                ? "/Images/user-icon.jpg"
-                : senderProfile?.avatarImage || "/Images/user-icon.jpg";
+              const avatar = isAnonymous ? "" : senderProfile?.avatarImage;
               const socialUrl = isAnonymous
                 ? "anonymous@guest.com"
                 : senderProfile?.socialMediaUrl;

@@ -10,7 +10,11 @@ const authRouter = Router()
   .get("/auth/me", authenticationMiddleware, getMe)
   .post("/auth/signin", signIn)
   .post("/auth/signup", signUpController)
-  .put("/auth/change-password/:userId", authenticationMiddleware, changePassword)
-  .get("/auth/check-username", checkUsername)
+  .put(
+    "/auth/change-password/:userId",
+    authenticationMiddleware,
+    changePassword
+  )
+  .get("/auth/check-username", checkUsername);
 
 export default authRouter;

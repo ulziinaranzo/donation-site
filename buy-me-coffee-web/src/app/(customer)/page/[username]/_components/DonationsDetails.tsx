@@ -4,28 +4,28 @@ import { User, Donation } from "@/app/_components/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ProfileWithUser } from "../page";
 
 type DonationsDetailsProps = {
   data: Donation[];
-  profileUser: User;
+  profileUser: ProfileWithUser;
 };
 
 export const DonationsDetails = ({
   data,
   profileUser,
 }: DonationsDetailsProps) => {
-
   return (
     <>
       <Card className="shadow-sm">
         <CardHeader>Social Media</CardHeader>
         <CardContent>
           <a
-            href={profileUser?.profile?.socialMediaUrl || "#"}
+            href={profileUser?.socialMediaUrl || "#"}
             className="text-sm break-all hover:underline text-blue-600"
             target="_blank"
           >
-            {profileUser?.profile?.socialMediaUrl || "No link provided."}
+            {profileUser?.socialMediaUrl || "No link provided."}
           </a>
         </CardContent>
       </Card>
@@ -37,7 +37,7 @@ export const DonationsDetails = ({
             <div className="text-center py-4">
               <img src="/Images/177043.png" className="mx-auto w-16 h-16" />
               <p className="text-sm text-muted-foreground mt-2">
-                Be the first one to support {profileUser?.profile?.name || "this user"}.
+                Be the first one to support {profileUser?.name || "this user"}.
               </p>
             </div>
           ) : (
