@@ -2,9 +2,7 @@ import { RequestHandler } from "express";
 import { prisma } from "../../db";
 
 export const createDonation: RequestHandler = async (req, res) => {
-  
-  const { amount, specialMessage, recipientId } = req.body;
-  const senderId = req.userId ? req.userId : null
+  const { amount, specialMessage, recipientId, senderId } = req.body;
 
   if (!amount || !recipientId) {
     res.status(400).json({ message: "Дутуу мэдээлэл байна" });
@@ -12,33 +10,33 @@ export const createDonation: RequestHandler = async (req, res) => {
   }
 
   const recipientUser = await prisma.user.findUnique({
-    where: { id: (recipientId) },
+    where: { id: recipientId },
   });
 
   if (!recipientUser) {
     res.status(404).json({ message: "Recipient user олдсонгүй" });
-    return; 
+    return;
   }
   try {
     const donation = await prisma.donation.create({
       data: {
         amount: Number(amount),
         specialMessage,
-        recipient: { connect: { id: (recipientId) } },
-        sender: senderId ? { connect: { id: senderId } } : undefined
+        recipient: { connect: { id: recipientId } },
+        sender: senderId ? { connect: { id: senderId } } : undefined,
       },
       include: {
         sender: {
           include: {
-            profile: true
-          }
+            profile: true,
+          },
         },
         recipient: {
           include: {
-            profile: true
-          }
-        }
-      }
+            profile: true,
+          },
+        },
+      },
     });
 
     res.status(200).json({ message: "Амжилттай donation илгээлээ", donation });

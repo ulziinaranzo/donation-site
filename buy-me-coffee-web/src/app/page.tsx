@@ -8,21 +8,24 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function MyPageWithSidebar() {
-  const { user } = useAuth();
+  const { user, getUser } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
-useEffect(() => {
-
-  if (!user) {
-    router.push("/auth/signup");
-  } else {
-    setLoading(false)
-  }
-}, [user, loading]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth/signup");
+    } else {
+      setLoading(false);
+    }
+  }, [user, loading]);
 
   if (loading || user === undefined) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-15 h-15 animate-spin text-gray-600"/></div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-15 h-15 animate-spin text-gray-600" />
+      </div>
+    );
   }
 
   return (

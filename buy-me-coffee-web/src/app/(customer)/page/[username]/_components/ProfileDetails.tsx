@@ -25,7 +25,7 @@ export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
           </Avatar>
           <span className="font-bold text-lg">{name}</span>
         </div>
-        {!isOwnPage && <EditPageDialog />}
+        {isOwnPage && <EditPageDialog />}
       </div>
       <CardHeader>Тухай</CardHeader>
       <CardContent>

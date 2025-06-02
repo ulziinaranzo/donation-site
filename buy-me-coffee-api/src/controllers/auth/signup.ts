@@ -1,39 +1,32 @@
 import { RequestHandler } from "express";
 import { prisma } from "../../db";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const signUpController: RequestHandler = async (req, res) => {
   const { email, password, username } = req.body;
 
   if (!email || !password || !username) {
-    res.status(400).json({ message: "Имэйл, нууц үг болон хэрэглэгчийн нэр шаардлагатай" });
-  return 
+    res
+      .status(400)
+      .json({ message: "Имэйл, нууц үг болон хэрэглэгчийн нэр шаардлагатай" });
+    return;
   }
 
   try {
-    const existingUserByUsername = await prisma.user.findUnique({
-      where: { username },
+    const existingUser = await prisma.user.findUnique({
+      where: { username, email },
     });
-
-    if (existingUserByUsername) {
-      res
-        .status(400)
-        .json({ message: "Энэ username аль хэдийн бүртгэлтэй байна" });
+    if (existingUser) {
+      res.status(400).json({
+        message: "Энэ username, email-ийг аль хэдийн бүртгэсэн байна",
+      });
       return;
     }
-    const existingUserByEmail = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUserByEmail) {
-      res.status(400).json({ message: "Энэ имэйл аль хэдийн бүртгэлтэй байна" });
-    return 
-    }
-
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -41,13 +34,23 @@ export const signUpController: RequestHandler = async (req, res) => {
       },
     });
 
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_NUUTS as string,
+      { expiresIn: "1d" }
+    );
+
+    if (!user) {
+      res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
+      return;
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+
     res.status(201).json({
       message: "Хэрэглэгч амжилттай бүртгэгдлээ",
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        username: newUser.username,
-      },
+      token,
+      user: userWithoutPassword,
     });
   } catch (error: any) {
     console.error("Signup error:", error);

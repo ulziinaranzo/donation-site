@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SuccessMessage } from "./SuccessPage";
+import { motion } from "framer-motion";
 
 const donateSchema = z.object({
   amount: z.coerce.number().min(1, "Donation-ий дүн сонгоно уу"),
@@ -25,19 +26,20 @@ type DonationFormData = z.infer<typeof donateSchema>;
 
 interface DonateProps {
   recipientId?: number;
+  refetchDonations?: () => Promise<void>;
 }
 
-export const Donate = ({ recipientId }: DonateProps) => {
-  console.log("Recipient ID in Donate:", recipientId);
+export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   const { user } = useAuth();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     setValue,
+    reset,
   } = useForm<DonationFormData>({
     resolver: zodResolver(donateSchema),
     mode: "onChange",
@@ -50,10 +52,14 @@ export const Donate = ({ recipientId }: DonateProps) => {
         recipientId,
         ...(user?.id && { senderId: user.id }),
       });
-      console.log("amount:", data.amount);
-      console.log("recipientId:", recipientId);
+
       toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
-      setIsDialogOpen(true)
+      setIsDialogOpen(true);
+      reset();
+
+      if (refetchDonations) {
+        await refetchDonations();
+      }
     } catch (error) {
       toast.error("Алдаа гарлаа");
       console.error("Error", error);
@@ -63,6 +69,10 @@ export const Donate = ({ recipientId }: DonateProps) => {
   const handleAmountClick = (amount: number) => {
     setSelectedAmount(amount);
     setValue("amount", amount, { shouldValidate: true });
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
   };
 
   return (
@@ -125,14 +135,18 @@ export const Donate = ({ recipientId }: DonateProps) => {
             className="w-full mt-4 bg-black text-white"
             type="submit"
             disabled={!isValid}
+            onClick={() => setIsDialogOpen(true)}
           >
             Support
           </Button>
         </CardContent>
-        
       </Card>
+      <SuccessMessage
+        open={isDialogOpen}
+        onOpenChange={handleOpenChange}
+        recipientId={recipientId!}
+      />
     </form>
-    
   );
 };
 export default Donate;

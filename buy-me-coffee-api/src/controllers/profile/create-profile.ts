@@ -23,7 +23,7 @@ export const createProfile: RequestHandler = async (req, res) => {
 
     if (!user) {
       res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
-      return
+      return;
     }
 
     const existingProfile = await prisma.profile.findFirst({
@@ -34,7 +34,7 @@ export const createProfile: RequestHandler = async (req, res) => {
       res
         .status(400)
         .json({ message: "Энэ хэрэглэгчийн profile аль хэдийн үүссэн байна" });
-        return
+      return;
     }
 
     const profile = await prisma.profile.create({
@@ -46,9 +46,21 @@ export const createProfile: RequestHandler = async (req, res) => {
         userId: user.id,
       },
     });
-    res.status(201).json({ message: "Хэрэглэгчийн profile үүслээ", profile });
+
+    const updatedUser = await prisma.user.findUnique({
+      where: { username: username },
+      include: {
+        profile: true,
+      },
+    });
+    res
+      .status(201)
+      .json({ message: "Хэрэглэгчийн profile үүслээ", user: updatedUser });
   } catch (error: any) {
-  console.error("Profile үүсгэхэд алдаа:", error.message || error);
-  res.status(500).json({ message: "Profile үүсгэхэд алдаа гарлаа", error: error.message || String(error) });
-}
+    console.error("Profile үүсгэхэд алдаа:", error.message || error);
+    res.status(500).json({
+      message: "Profile үүсгэхэд алдаа гарлаа",
+      error: error.message || String(error),
+    });
+  }
 };

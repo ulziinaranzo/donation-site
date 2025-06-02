@@ -6,9 +6,14 @@ export const signIn: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log(email, password);
 
-    const user = await prisma.user.findFirst({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email: email },
+      include: {
+        profile: true,
+        bankCard: true,
+      },
+    });
     if (!user) {
       res.status(404).json({ message: "Имэйл эсвэл нууц үг буруу байна" });
       return;
@@ -17,7 +22,7 @@ export const signIn: RequestHandler = async (req, res) => {
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       res.status(401).json({ message: "Имэйл эсвэл нууц үг буруу байна" });
-      return
+      return;
     }
 
     const token = jwt.sign(

@@ -1,6 +1,11 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -8,6 +13,8 @@ import { api } from "@/axios";
 import { User } from "@/app/_components/AuthProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { CompletedIcon } from "@/assets/CompletedIcon";
 
 type SuccessMessageProps = {
   open: boolean;
@@ -44,15 +51,13 @@ export const SuccessMessage = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Donation амжилттай илгээгдлээ</DialogTitle>
+          <DialogDescription>Хэрэглэгчийн талархал</DialogDescription>
+        </DialogHeader>
         <div className="flex flex-col items-center gap-6 py-4">
           <div className="bg-green-500 rounded-full w-16 h-16 flex items-center justify-center">
-            <Image
-              src="/Images/heart.png"
-              alt="Heart"
-              width={48}
-              height={48}
-              className="object-contain"
-            />
+            <CompletedIcon />
           </div>
 
           {loading ? (
@@ -60,7 +65,7 @@ export const SuccessMessage = ({
           ) : (
             <Card className="w-full p-4">
               <div className="flex items-start gap-3">
-                {user?.profile?.avatarImage ? (
+                {user?.profile?.avatarImage?.startsWith("http") ? (
                   <Image
                     src={user.profile.avatarImage}
                     alt="User"
@@ -84,10 +89,9 @@ export const SuccessMessage = ({
             className="w-full"
             onClick={() => {
               onOpenChange(false);
-              router.push("/explore");
             }}
           >
-            Explore руу буцах
+            Буцах
           </Button>
         </div>
       </DialogContent>

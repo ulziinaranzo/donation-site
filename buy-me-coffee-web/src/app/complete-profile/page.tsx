@@ -26,7 +26,7 @@ const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
   about: z.string().min(1, "Өөрийн тухай бичнэ үү"),
   socialMediaUrl: z.string().url("Зөв URL оруулна уу"),
-  avatarImage: z.string().url().optional(),
+  avatarImage: z.string().url().or(z.literal("")).optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -36,7 +36,7 @@ const CLOUD_NAME = "dxhmgs7wt";
 
 export default function completeProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, getUser } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState<boolean>(false);
@@ -93,16 +93,22 @@ export default function completeProfilePage() {
   };
 
   const onSubmit = async (data: ProfileFormData) => {
+    await getUser();
     try {
       await api.post(`/profile/${user?.username}`, {
         ...data,
         avatarImage: data.avatarImage || uploadedUrl,
       });
+      console.log(data);
+
       toast.success("Амжилттай хадгалагдлаа");
-      router.push("/payment")
-} catch (error: any) {
-  console.error("Алдаа:", error.response?.data || error.message);
-}
+      router.push("/payment");
+    } catch (error: any) {
+      console.error(
+        "Алдаа гарлаа, бүтэн бөглөнө үү:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   useEffect(() => {
@@ -136,7 +142,9 @@ export default function completeProfilePage() {
 
       <Card className="w-[650px] space-y-8">
         <CardHeader>
-          <CardTitle className="text-[16px] font-[700]">Хувийн мэдээлэл</CardTitle>
+          <CardTitle className="text-[16px] font-[700]">
+            Хувийн мэдээлэл
+          </CardTitle>
           <CardDescription>Профайл хуудсаа бөглөнө үү</CardDescription>
         </CardHeader>
         <CardContent>

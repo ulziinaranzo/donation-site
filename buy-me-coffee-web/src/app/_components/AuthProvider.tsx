@@ -19,7 +19,7 @@ export type Profile = {
 };
 
 export type BankCard = {
-  id: number
+  id: number;
   country: string;
   firstName: string;
   lastName: string;
@@ -88,9 +88,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       console.log("token", data.token);
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
-      setAuthToken(data.token); 
+      setAuthToken(data.token);
       setUser(data.user);
-      await getUser();
       router.push("/");
     } catch (error) {
       console.error(error);
@@ -109,9 +108,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
-      setAuthToken(data.token); 
+      setAuthToken(data.token);
       setUser(data.user);
-      await getUser();
       router.push("/complete-profile");
     } catch (error: any) {
       console.error(error);

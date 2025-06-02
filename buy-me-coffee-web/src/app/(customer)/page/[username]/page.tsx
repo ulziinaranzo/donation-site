@@ -28,13 +28,11 @@ export default function UserPage() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-
-
   const fetchProfileAndDonations = useCallback(async () => {
     setLoading(true);
     try {
       const { data: userData } = await api.get(`/profile/view/${username}`);
-      setProfileUser(userData); 
+      setProfileUser(userData);
       setBackgroundImage(userData.profile?.backgroundImage || null);
       console.log("Fetched profile user:", userData);
       const { data: donationData } = await api.get(
@@ -54,8 +52,6 @@ export default function UserPage() {
     }
   }, [fetchProfileAndDonations]);
 
-
-
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -71,7 +67,7 @@ export default function UserPage() {
       if (user?.id) {
         await api.put(`/profile/${user.id}`, { backgroundImage: imageUrl });
         setBackgroundImage(imageUrl);
-        console.log("sdf", backgroundImage)
+        console.log("sdf", backgroundImage);
       }
     } catch {
       toast.error("Зураг байрлуулахад алдаа гарлаа");
@@ -95,7 +91,7 @@ export default function UserPage() {
             className="w-full h-full object-cover"
           />
         )}
-        {!isOwnPage && user?.id && (
+        {isOwnPage && user?.id && (
           <>
             <input
               type="file"
@@ -119,9 +115,10 @@ export default function UserPage() {
           <ProfileDetails user={profileUser!} isOwnPage={isOwnPage} />
           <DonationsDetails data={donations} profileUser={profileUser!} />
         </div>
-        {profileUser && (
-  <Donate recipientId={profileUser.id} />
-)}
+        <Donate
+          recipientId={profileUser?.id}
+          refetchDonations={fetchProfileAndDonations}
+        />
       </div>
     </div>
   );
