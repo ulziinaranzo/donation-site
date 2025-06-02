@@ -24,10 +24,11 @@ const donateSchema = z.object({
 type DonationFormData = z.infer<typeof donateSchema>;
 
 interface DonateProps {
-  recipientId: number;
+  recipientId?: number;
 }
 
 export const Donate = ({ recipientId }: DonateProps) => {
+  console.log("Recipient ID in Donate:", recipientId);
   const { user } = useAuth();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
@@ -49,8 +50,9 @@ export const Donate = ({ recipientId }: DonateProps) => {
         recipientId,
         ...(user?.id && { senderId: user.id }),
       });
+      console.log("amount:", data.amount);
+      console.log("recipientId:", recipientId);
       toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
-      console.log("Donation", data);
       setIsDialogOpen(true)
     } catch (error) {
       toast.error("Алдаа гарлаа");

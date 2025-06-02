@@ -11,9 +11,9 @@ type ProfileDetailsProps = {
 };
 
 export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
-  const name = user.profile?.name || "Unnamed";
-  const avatar = user.profile?.avatarImage || "";
-  const about = user.profile?.about || "Хэрэглэгчийн тухай мэдээлэл байхгүй.";
+  const name = user?.profile?.name || "Unnamed";
+  const avatar = user?.profile?.avatarImage || "";
+  const about = user?.profile?.about || "Хэрэглэгчийн тухай мэдээлэл байхгүй.";
 
   return (
     <Card className="shadow-sm">
@@ -21,7 +21,7 @@ export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
         <div className="flex items-center gap-3">
           <Avatar className="w-12 h-12">
             <AvatarImage src={avatar} />
-            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <span className="font-bold text-lg">{name}</span>
         </div>

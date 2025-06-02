@@ -5,11 +5,12 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { api } from "@/axios";
 import { Donation, useAuth, User } from "@/app/_components/AuthProvider";
 import { ProfileDetails } from "./_components/ProfileDetails";
 import { DonationsDetails } from "./_components/DonationsDetails";
 import { Donate } from "./_components/Donate";
+import { api } from "@/axios";
+import { profile } from "console";
 
 const CLOUD_NAME = "dxhmgs7wt";
 const UPLOAD_PRESET = "buy-me-coffee";
@@ -27,13 +28,15 @@ export default function UserPage() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+
+
   const fetchProfileAndDonations = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: userData } = await api.get(`/${username}`);
-      setProfileUser(userData.user);
-      setBackgroundImage(userData.user?.profile?.backgroundImage || null);
-
+      const { data: userData } = await api.get(`/profile/view/${username}`);
+      setProfileUser(userData); 
+      setBackgroundImage(userData.profile?.backgroundImage || null);
+      console.log("Fetched profile user:", userData);
       const { data: donationData } = await api.get(
         `/donation/received/${username}`
       );
@@ -46,8 +49,12 @@ export default function UserPage() {
   }, [username]);
 
   useEffect(() => {
-    if (username) fetchProfileAndDonations();
+    if (username) {
+      fetchProfileAndDonations();
+    }
   }, [fetchProfileAndDonations]);
+
+
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
@@ -64,6 +71,7 @@ export default function UserPage() {
       if (user?.id) {
         await api.put(`/profile/${user.id}`, { backgroundImage: imageUrl });
         setBackgroundImage(imageUrl);
+        console.log("sdf", backgroundImage)
       }
     } catch {
       toast.error("Зураг байрлуулахад алдаа гарлаа");
@@ -75,11 +83,7 @@ export default function UserPage() {
     if (file) await handleImageUpload(file);
   };
 
-  if (loading || !profileUser) {
-    return <div className="text-center p-4">Ачааллаж байна...</div>;
-  }
-
-  const isOwnPage = user?.id === profileUser.id;
+  const isOwnPage = user?.id === profileUser?.id;
 
   return (
     <div className="w-full p-4 relative">
@@ -112,10 +116,12 @@ export default function UserPage() {
 
       <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 flex gap-[100px] z-30">
         <div className="flex flex-col gap-5 w-[632px]">
-          <ProfileDetails user={profileUser} isOwnPage={isOwnPage} />
-          <DonationsDetails data={donations} profileUser={profileUser} />
+          <ProfileDetails user={profileUser!} isOwnPage={isOwnPage} />
+          <DonationsDetails data={donations} profileUser={profileUser!} />
         </div>
-        <Donate recipientId={profileUser.id} />
+        {profileUser && (
+  <Donate recipientId={profileUser.id} />
+)}
       </div>
     </div>
   );

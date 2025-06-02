@@ -161,7 +161,7 @@ export default function ChangeCompleteProfilePage() {
                   ) : imagePreview || uploadedUrl ? (
                     <div className="relative w-full h-full">
                       <img
-                        src={imagePreview || uploadedUrl || "/Images/user-icon.png"}
+                        src={imagePreview || uploadedUrl || ""}
                         alt="Preview"
                         className="w-full h-full object-cover rounded-full"
                       />

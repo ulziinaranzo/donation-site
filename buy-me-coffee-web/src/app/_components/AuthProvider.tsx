@@ -90,10 +90,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       localStorage.setItem("token", data.token);
       setAuthToken(data.token); 
       setUser(data.user);
+      await getUser();
       router.push("/");
     } catch (error) {
       console.error(error);
-      toast.error("Нэвтрэхэд алдаа гарлаа");
+      toast.error("Нэвтрэхэд алдаа гарлаа, нууц үг эсвэл email буруу байна");
     }
   };
 
@@ -110,6 +111,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       localStorage.setItem("token", data.token);
       setAuthToken(data.token); 
       setUser(data.user);
+      await getUser();
       router.push("/complete-profile");
     } catch (error: any) {
       console.error(error);

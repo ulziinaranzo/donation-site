@@ -6,7 +6,7 @@ import profileRouter from "../src/routes/profile.route";
 import donationRouter from "../src/routes/donation.route";
 import authRouter from "../src/routes/auth.route";
 import cors from "cors";
-
+import jwt from "jsonwebtoken";
 const app = express();
 dotenv.config();
 
@@ -14,6 +14,21 @@ const port = 3001;
 
 app.use(express.json());
 app.use(cors());
+app.use((req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, "secret") as {
+        id: number;
+        username: string;
+      };
+      (req as any).userId = decoded.id;
+      (req as any).username = decoded.username;
+    } catch (error) {
+    }
+  }
+  next();
+});
 app.use(userRouter);
 app.use(bankCardRouter);
 app.use(profileRouter);

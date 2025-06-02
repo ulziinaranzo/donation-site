@@ -16,11 +16,11 @@ export const authenticationMiddleware: RequestHandler = async (
   const token = authHeader.split(" ")[1];
 
   try {
-    const { userId } = jwt.verify(token, process.env.JWT_NUUTS) as {
+    const { userId } = jwt.verify(token, process.env.JWT_NUUTS!) as {
       userId: string;
     };
 
-    (req as any).userId = userId;
+    (req as any).userId = userId; 
     next();
   } catch (error) {
     console.error("Invalid token", error);

@@ -23,7 +23,7 @@ export const UserInfo = ({user}: {user: User}) => {
           <div className="flex items-center gap-4">
             <Avatar>
               <AvatarImage
-                src={user?.profile?.avatarImage || "/Images/user-icon.png"}
+                src={user?.profile?.avatarImage || ""}
                 className="w-[48px] h-[48px] rounded-full"
               />
               <AvatarFallback className="w-[50px] h-[50px]">
