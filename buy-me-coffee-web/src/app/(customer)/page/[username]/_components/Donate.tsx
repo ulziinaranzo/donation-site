@@ -60,7 +60,6 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     handleSubmit,
     formState: { errors, isValid },
     setValue,
-    reset,
   } = useForm<DonationFormData>({
     resolver: zodResolver(donateSchema),
     mode: "onChange",
@@ -111,7 +110,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   if (isPaid) {
     return (
       <div className="w-screen h-screen flex justify-center items-center bg-white">
-        <SuccessMessage recipientId={recipientId!}/>
+        <SuccessMessage recipientId={recipientId!} />
       </div>
     );
   }

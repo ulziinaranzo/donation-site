@@ -34,8 +34,8 @@ const newPasswordSchema = z
 type NewPasswordData = z.infer<typeof newPasswordSchema>;
 
 export const ChangePassword = () => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const { user } = useAuth()
+  const [loading, setLoading] = useState<boolean>(false);
+  const { user } = useAuth();
   const {
     register,
     handleSubmit,
@@ -46,30 +46,30 @@ export const ChangePassword = () => {
   });
 
   const onSubmit = async (data: NewPasswordData) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await api.put(`auth/change-password/${user?.id}`,
-        {
-          currentPassword: data.currentPassword,
-          newPassword: data.password
-        }
-      )
-      toast.success("Нууц үг амжилттай солигдлоо!")
+      await api.put(`auth/change-password/${user?.id}`, {
+        currentPassword: data.currentPassword,
+        newPassword: data.password,
+      });
+      toast.success("Нууц үг амжилттай солигдлоо!");
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.message) {
-    toast.error(error.response.data.message);
-  } else {
-    toast.error("Нууц үг солиход алдаа гарлаа");
-  }
-  console.error("Нууц үг солиход алдаа гарлаа", error);
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Нууц үг солиход алдаа гарлаа");
+      }
+      console.error("Нууц үг солиход алдаа гарлаа", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
   return (
     <Card className="w-[650px] mb-[32px]">
       <CardHeader>
-        <CardTitle className="text-[16px] font-[700]">Шинэ нууц үг үүсгэх</CardTitle>
+        <CardTitle className="text-[16px] font-[700]">
+          Шинэ нууц үг үүсгэх
+        </CardTitle>
         <CardDescription>Нууц үгээ солих юм уу тэ?</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,7 +84,9 @@ export const ChangePassword = () => {
                 {...register("currentPassword")}
               />
               {errors.currentPassword && (
-                <p className="text-sm text-red-500">{errors.currentPassword.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.currentPassword.message}
+                </p>
               )}
             </div>
             <div className="flex flex-col space-y-1.5">
@@ -96,7 +98,9 @@ export const ChangePassword = () => {
                 {...register("password")}
               />
               {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.password.message}
+                </p>
               )}
             </div>
             <div className="flex flex-col space-y-1.5">
@@ -108,14 +112,20 @@ export const ChangePassword = () => {
                 {...register("confirmPassword")}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Button type="submit" className="w-full h-[40px] mt-4 bg-black disabled:opacity-50 disabled:cursor-not-allowed" disabled={!isValid || loading}>
-            {loading && <Loader2 className="h-4 w-4 animate-spin" /> }
+          <Button
+            type="submit"
+            className="w-full h-[40px] mt-4 bg-black disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!isValid || loading}
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Түр хүлээнэ үү..." : "Хадгалах"}
           </Button>
         </CardFooter>

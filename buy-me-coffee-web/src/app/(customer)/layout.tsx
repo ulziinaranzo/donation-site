@@ -1,7 +1,7 @@
 "use client";
 
-import { Compass, Home, Settings, User } from "lucide-react";
-import React, { use } from "react";
+import { Compass, Settings, User } from "lucide-react";
+import React from "react";
 import { useAuth } from "../_components/AuthProvider";
 import Link from "next/link";
 

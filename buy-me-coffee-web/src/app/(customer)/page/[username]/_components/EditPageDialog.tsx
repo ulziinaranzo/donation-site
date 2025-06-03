@@ -6,6 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +38,7 @@ const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
 export const EditPageDialog = () => {
-  const { user, setUser, getUser } = useAuth();
+  const { user, getUser } = useAuth(); // Removed setUser since unused
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -120,7 +121,6 @@ export const EditPageDialog = () => {
         ...data,
         avatarImage: deployedImg,
       });
-      console.log("zurag", data);
 
       toast.success("Амжилттай шинэчлэгдлээ");
       await getUser();
@@ -151,7 +151,7 @@ export const EditPageDialog = () => {
               Өөрийн профайлыг энд засварлаж хадгална уу.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2 relative">
             <span className="text-[14px] text-black font-[500]">
               Зураг нэмэх
             </span>
@@ -160,9 +160,11 @@ export const EditPageDialog = () => {
               className="cursor-pointer w-40 h-40 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative"
             >
               {imagePreview ? (
-                <img
+                <Image
                   src={imagePreview || user?.profile.avatarImage || ""}
-                  className="w-full h-full object-cover"
+                  alt="Profile avatar"
+                  fill
+                  style={{ objectFit: "cover" }}
                 />
               ) : (
                 <Camera className="w-[28px] h-[28px] text-gray-500" />
@@ -178,6 +180,7 @@ export const EditPageDialog = () => {
             </label>
             {imagePreview && (
               <button
+                type="button"
                 className="text-sm text-red-500 absolute top-[140px] right-[330px]"
                 onClick={handleRemoveImage}
               >

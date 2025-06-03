@@ -10,22 +10,18 @@ import { PaginationUsers } from "./_components/Pagination";
 export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const usersPerPage = 10
-  const indexOfLastUser = currentPage * usersPerPage
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const usersPerPage = 10;
+  const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
   const getUsers = async () => {
-    setLoading(true);
     try {
       const response = await api.get("/user");
       setUsers(response.data.users);
     } catch (error) {
       console.error("Хэрэглэгчдийг харуулахад алдаа гарлаа", error);
       toast.error("Хэрэглэгчдийг харуулахад алдаа гарлаа");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -59,12 +55,12 @@ export default function Home() {
             <UsersCard user={user} key={user.id} />
           ))}
           <div className="flex w-full justify-end">
-              <PaginationUsers
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalUsers={filteredUsers.length}
-                usersPerPage={usersPerPage}
-              />
+            <PaginationUsers
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalUsers={filteredUsers.length}
+              usersPerPage={usersPerPage}
+            />
           </div>
         </div>
       </main>

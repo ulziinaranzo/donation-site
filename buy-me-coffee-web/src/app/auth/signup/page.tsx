@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Step } from "./_components/Step";
 import { Step1 } from "./_components/Step1";
+import Image from "next/image";
 
 type MyFormData = {
   username: string;
@@ -28,7 +29,13 @@ const SignUp = () => {
   return (
     <div className="w-screen h-screen flex ">
       <div className="flex flex-col flex-1/2 bg-[#ffe8dd] justify-center items-center">
-        <img src="/Images/bg.avif" className="w-[455px]" />
+        <Image
+          src="/Images/bg.avif"
+          className="w-[455px]"
+          width={455}
+          height={300}
+          alt="Background image"
+        />
         <div className="font-[700] text-[24px] mb-[10px]">
           Бүтээлч ажлаа санхүүжүүл
         </div>
@@ -40,7 +47,6 @@ const SignUp = () => {
       <div className="flex flex-1/2 justify-center items-center">
         {!step ? (
           <Step
-            handlePrev={handlePrev}
             handleNext={handleNext}
             data={data}
             saveFormDataChange={saveFormDataChange}

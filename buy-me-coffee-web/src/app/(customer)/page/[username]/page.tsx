@@ -5,12 +5,13 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
+
 import { Donation, useAuth, User } from "@/app/_components/AuthProvider";
 import { ProfileDetails } from "./_components/ProfileDetails";
 import { DonationsDetails } from "./_components/DonationsDetails";
 import { Donate } from "./_components/Donate";
 import { api } from "@/axios";
-import { profile } from "console";
 
 const CLOUD_NAME = "dxhmgs7wt";
 const UPLOAD_PRESET = "buy-me-coffee";
@@ -35,11 +36,13 @@ export default function UserPage() {
       setProfileUser(userData);
       setBackgroundImage(userData.profile?.backgroundImage || null);
       console.log("Fetched profile user:", userData);
+
       const { data: donationData } = await api.get(
         `/donation/received/${username}`
       );
       setDonations(donationData.donations || []);
     } catch (error) {
+      console.error(error);
       toast.error("Мэдээллийг авахад алдаа гарлаа");
     } finally {
       setLoading(false);
@@ -50,7 +53,7 @@ export default function UserPage() {
     if (username) {
       fetchProfileAndDonations();
     }
-  }, [fetchProfileAndDonations]);
+  }, [fetchProfileAndDonations, username]);
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
@@ -67,9 +70,9 @@ export default function UserPage() {
       if (user?.id) {
         await api.put(`/profile/${user.id}`, { backgroundImage: imageUrl });
         setBackgroundImage(imageUrl);
-        console.log("sdf", backgroundImage);
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Зураг байрлуулахад алдаа гарлаа");
     }
   };
@@ -85,10 +88,12 @@ export default function UserPage() {
     <div className="w-full p-4 relative">
       <div className="w-full h-[319px] bg-gray-200 rounded-md overflow-hidden relative">
         {backgroundImage && (
-          <img
+          <Image
             src={backgroundImage}
             alt="cover"
-            className="w-full h-full object-cover"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
           />
         )}
         {isOwnPage && user?.id && (
@@ -112,14 +117,24 @@ export default function UserPage() {
 
       <div className="absolute top-[250px] left-1/2 transform -translate-x-1/2 flex gap-[100px] z-30">
         <div className="flex flex-col gap-5 w-[632px]">
-          <ProfileDetails user={profileUser!} isOwnPage={isOwnPage} />
-          <DonationsDetails data={donations} profileUser={profileUser!} />
+          {profileUser && (
+            <>
+              <ProfileDetails user={profileUser} isOwnPage={isOwnPage} />
+              <DonationsDetails data={donations} profileUser={profileUser} />
+            </>
+          )}
         </div>
         <Donate
           recipientId={profileUser?.id}
           refetchDonations={fetchProfileAndDonations}
         />
       </div>
+
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="text-white text-lg">Ачааллаж байна...</div>
+        </div>
+      )}
     </div>
   );
 }

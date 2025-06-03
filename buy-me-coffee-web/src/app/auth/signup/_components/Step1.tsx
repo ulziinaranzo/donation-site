@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/_components/AuthProvider";
-import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -23,11 +22,13 @@ const formSchema = z
     message: "Нууц үг таарахгүй байна",
     path: ["confirmPassword"],
   });
+
 type FormData = {
   username: string;
   email: string;
   password: string;
 };
+
 type Step1Props = {
   handlePrev: () => void;
   handleNext: () => void;
@@ -45,7 +46,7 @@ export const Step1 = ({
 }: Step1Props) => {
   const [showPassword, setShowPassword] = useState(false);
   const { signUp } = useAuth();
-  const router = useRouter();
+
   const {
     control,
     handleSubmit,
@@ -60,16 +61,19 @@ export const Step1 = ({
   });
 
   const onSubmit = async (savingData: Step1FormData) => {
-    const { confirmPassword, ...dataToSave } = savingData;
+    const dataToSave = {
+      email: savingData.email,
+      password: savingData.password,
+    };
     saveFormDataChange(dataToSave);
     try {
       await signUp(dataToSave.email, dataToSave.password, data.username);
       console.log("Бүртгэл амжилттай");
+      handleNext();
     } catch (error) {
-      console.error("Бүртгэхэд алдаа гарлаа");
+      console.error("Бүртгэхэд алдаа гарлаа", error);
     }
   };
-
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col space-y-6 mb-[100px]">
@@ -89,11 +93,12 @@ export const Step1 = ({
                   type="email"
                 />
                 {errors.email && (
-                  <p className="text-red-500  mt-1">{errors.email.message}</p>
+                  <p className="text-red-500 mt-1">{errors.email.message}</p>
                 )}
               </div>
             )}
           />
+
           <p className="text-[16px] font-[500] mt-1">Нууц үг</p>
           <Controller
             name="password"
@@ -116,7 +121,7 @@ export const Step1 = ({
             name="confirmPassword"
             control={control}
             render={({ field }) => (
-              <div className="mt-4">
+              <div className="mt-4 w-[300px]">
                 <Input
                   {...field}
                   type={showPassword ? "text" : "password"}
@@ -130,6 +135,7 @@ export const Step1 = ({
               </div>
             )}
           />
+
           <div className="flex items-center space-x-2 mt-4">
             <Checkbox
               id="showPassword"
@@ -138,9 +144,20 @@ export const Step1 = ({
             />
             <Label htmlFor="showPassword">Нууц үгийг харах</Label>
           </div>
-          <Button type="submit" className="w-full mt-4 ">
-            Үргэлжлүүлэх
-          </Button>
+
+          <div className="flex justify-between mt-4 w-[300px]">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrev}
+              className="w-[140px]"
+            >
+              Өмнөх
+            </Button>
+            <Button type="submit" className="w-[140px]">
+              Үргэлжлүүлэх
+            </Button>
+          </div>
         </form>
       </div>
     </div>

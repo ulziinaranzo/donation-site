@@ -1,250 +1,127 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+import React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api } from "@/axios";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { api } from "@/axios";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/app/_components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/app/_components/AuthProvider";
 
-const formatCardNumber = (value: string) =>
-  value
-    .replace(/\D/g, "")
-    .replace(/(.{4})/g, "$1-")
-    .slice(0, 19)
-    .replace(/-$/, "");
-
-const paymentSchema = z.object({
-  country: z.string().min(1, "Улсаа сонгоно уу"),
+const changePaymentSchema = z.object({
   firstName: z.string().min(1, "Нэрээ оруулна уу"),
   lastName: z.string().min(1, "Овгоо оруулна уу"),
-  cardNumber: z.string().regex(/^(\d{4}-){3}\d{4}$/, "Картын дугаар буруу"),
-  expiryMonth: z.string().min(1, "Сар сонгоно уу"),
-  expiryYear: z.string().min(1, "Он сонгоно уу"),
-  cvc: z.string().regex(/^\d{3,4}$/, "CVC 3-4 оронтой байх ёстой"),
+  cardNumber: z.string().min(16, "Картын дугаар буруу"),
+  expiryDate: z.string().min(1, "Хугацааг оруулна уу"),
+  cvc: z.string().min(3, "CVC буруу"),
 });
 
-type PaymentFormData = z.infer<typeof paymentSchema>;
+type ChangePaymentFormData = z.infer<typeof changePaymentSchema>;
 
-export default function PaymentForm() {
-  const { user, getUser, setUser } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const expiry = user?.bankCard?.expiryDate
-    ? new Date(user.bankCard.expiryDate)
-    : null;
+export default function ChangePaymentDetails() {
+  const { user, getUser } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isValid },
-  } = useForm<PaymentFormData>({
-    resolver: zodResolver(paymentSchema),
-    mode: "onChange",
+    formState: { errors },
+  } = useForm<ChangePaymentFormData>({
+    resolver: zodResolver(changePaymentSchema),
     defaultValues: {
-      country: user?.bankCard?.country || "",
       firstName: user?.bankCard?.firstName || "",
       lastName: user?.bankCard?.lastName || "",
       cardNumber: user?.bankCard?.cardNumber || "",
-      expiryMonth: expiry ? String(expiry.getMonth() + 1).padStart(2, "0") : "",
-      expiryYear: expiry ? String(expiry.getFullYear()) : "",
+      expiryDate: user?.bankCard?.expiryDate
+        ? new Date(user.bankCard.expiryDate).toISOString().slice(0, 7)
+        : "",
       cvc: user?.bankCard?.cvc || "",
     },
   });
 
-  const onSubmit = async (data: PaymentFormData) => {
+  const onSubmit = async (data: ChangePaymentFormData) => {
     try {
       setLoading(true);
-
-      const formattedExpiryDate = `${data.expiryYear}-${data.expiryMonth}-01T00:00:00Z`
-
       await api.put(`/bank-card/${user?.bankCard?.id}`, {
         ...data,
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
-        cardNumber: data.cardNumber.replace(/-/g, ""),
-        expiryDate: formattedExpiryDate
+        cardNumber: data.cardNumber.replace(/\s/g, ""),
       });
-      await getUser()
+      await getUser();
       toast.success("Амжилттай хадгалагдлаа");
-    } catch (error) {
+    } catch {
       toast.error("Карт нэмэхэд алдаа гарлаа");
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <div className="min-h-0 flex items-start bg-white w-[650px]">
-      <Card className="w-full max-w-2xl shadow-md border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-2xl">Банкны мэдээлэл</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Картын мэдээллээ оруулна уу
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <Label>
-                Улс <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                onValueChange={(value) =>
-                  setValue("country", value, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Сонгох" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mongolia">Mongolia</SelectItem>
-                  <SelectItem value="usa">United States</SelectItem>
-                  <SelectItem value="uk">United Kingdom</SelectItem>
-                  <SelectItem value="canada">Canada</SelectItem>
-                  <SelectItem value="japan">Japan</SelectItem>
-                  <SelectItem value="germany">Germany</SelectItem>
-                  <SelectItem value="australia">Australia</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.country && (
-                <p className="text-sm text-red-500">{errors.country.message}</p>
-              )}
-            </div>
+    <Card className="max-w-lg mx-auto shadow-md border border-gray-200">
+      <CardHeader>
+        <CardTitle>Картын мэдээлэл өөрчлөх</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div>
+            <Label>Нэр</Label>
+            <Input {...register("firstName")} />
+            {errors.firstName && (
+              <p className="text-sm text-red-500">{errors.firstName.message}</p>
+            )}
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Нэр *</Label>
-                <Input placeholder="Нэр" {...register("firstName")} />
-                {errors.firstName && (
-                  <p className="text-sm text-red-500">
-                    {errors.firstName.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Овог *</Label>
-                <Input placeholder="Овог" {...register("lastName")} />
-                {errors.lastName && (
-                  <p className="text-sm text-red-500">
-                    {errors.lastName.message}
-                  </p>
-                )}
-              </div>
-            </div>
+          <div>
+            <Label>Овог</Label>
+            <Input {...register("lastName")} />
+            {errors.lastName && (
+              <p className="text-sm text-red-500">{errors.lastName.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-2">
-              <Label>Картын дугаар *</Label>
-              <Input
-                placeholder="XXXX-XXXX-XXXX-XXXX"
-                {...register("cardNumber")}
-                onChange={(e) => {
-                  const formatted = formatCardNumber(e.target.value);
-                  setValue("cardNumber", formatted, { shouldValidate: true });
-                }}
-                value={watch("cardNumber")}
-              />
-              {errors.cardNumber && (
-                <p className="text-sm text-red-500">
-                  {errors.cardNumber.message}
-                </p>
-              )}
-            </div>
+          <div>
+            <Label>Картын дугаар</Label>
+            <Input {...register("cardNumber")} />
+            {errors.cardNumber && (
+              <p className="text-sm text-red-500">
+                {errors.cardNumber.message}
+              </p>
+            )}
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Сар *</Label>
-                <Select
-                  onValueChange={(value) =>
-                    setValue("expiryMonth", value, { shouldValidate: true })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Сар" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => {
-                      const month = (i + 1).toString().padStart(2, "0");
-                      return (
-                        <SelectItem key={month} value={month}>
-                          {month}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {errors.expiryMonth && (
-                  <p className="text-sm text-red-500">
-                    {errors.expiryMonth.message}
-                  </p>
-                )}
-              </div>
+          <div>
+            <Label>Хугацаа (YYYY-MM)</Label>
+            <Input type="month" {...register("expiryDate")} />
+            {errors.expiryDate && (
+              <p className="text-sm text-red-500">
+                {errors.expiryDate.message}
+              </p>
+            )}
+          </div>
 
-              <div className="space-y-2">
-                <Label>Он *</Label>
-                <Select
-                  onValueChange={(value) =>
-                    setValue("expiryYear", value, { shouldValidate: true })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Он" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 10 }, (_, i) => {
-                      const year = (new Date().getFullYear() + i).toString();
-                      return (
-                        <SelectItem key={year} value={year}>
-                          {year}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {errors.expiryYear && (
-                  <p className="text-sm text-red-500">
-                    {errors.expiryYear.message}
-                  </p>
-                )}
-              </div>
+          <div>
+            <Label>CVC</Label>
+            <Input {...register("cvc")} />
+            {errors.cvc && (
+              <p className="text-sm text-red-500">{errors.cvc.message}</p>
+            )}
+          </div>
 
-              <div className="space-y-2">
-                <Label>CVC *</Label>
-                <Input type="number" placeholder="CVC" {...register("cvc")} />
-                {errors.cvc && (
-                  <p className="text-sm text-red-500">{errors.cvc.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <Button
-                type="submit"
-                className="w-full bg-black"
-                disabled={ loading}
-              >
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                {loading ? "Түр хүлээнэ үү..." : "Хадгалах"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <Button type="submit" disabled={loading} className="w-full bg-black">
+            {loading ? (
+              <Loader2 className="animate-spin h-5 w-5 mx-auto" />
+            ) : (
+              "Хадгалах"
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

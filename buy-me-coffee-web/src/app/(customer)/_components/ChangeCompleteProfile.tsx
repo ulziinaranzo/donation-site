@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image"; // add this import for Next.js Image component
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,8 @@ import {
 } from "@/components/ui/card";
 import { api } from "@/axios";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_components/AuthProvider";
 import axios from "axios";
-import Image from "next/image";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
@@ -36,7 +35,6 @@ const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
 export default function ChangeCompleteProfilePage() {
-  const router = useRouter();
   const { user } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -73,7 +71,7 @@ export default function ChangeCompleteProfilePage() {
       return response.data.secure_url;
     } catch (error) {
       toast.error("Зураг илгээхэд алдаа гарлаа");
-      return null;
+      console.error("Error updating profile:", error);
     } finally {
       setLoadingImage(false);
     }
@@ -106,9 +104,9 @@ export default function ChangeCompleteProfilePage() {
         avatarImage: data.avatarImage || uploadedUrl,
       });
       toast.success("Амжилттай хадгалагдлаа");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Алдаа гарлаа");
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", _error);
     }
   };
 
@@ -117,6 +115,7 @@ export default function ChangeCompleteProfilePage() {
       setValue("avatarImage", uploadedUrl, { shouldValidate: true });
     }
   }, [uploadedUrl, setValue]);
+
   useEffect(() => {
     if (isSubmitting || loadingImage) {
       document.body.style.overflow = "hidden";
@@ -126,11 +125,11 @@ export default function ChangeCompleteProfilePage() {
   }, [isSubmitting, loadingImage]);
 
   useEffect(() => {
-  if (user?.profile?.avatarImage) {
-    setImagePreview(user.profile.avatarImage);
-    setUploadedUrl(user.profile.avatarImage);
-  }
-}, [user?.profile?.avatarImage]);
+    if (user?.profile?.avatarImage) {
+      setImagePreview(user.profile.avatarImage);
+      setUploadedUrl(user.profile.avatarImage);
+    }
+  }, [user?.profile?.avatarImage]);
 
   return (
     <div className="relative flex flex-col bg-white mb-8 mt-8 ">
@@ -160,10 +159,12 @@ export default function ChangeCompleteProfilePage() {
                     <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
                   ) : imagePreview || uploadedUrl ? (
                     <div className="relative w-full h-full">
-                      <img
+                      <Image
                         src={imagePreview || uploadedUrl || ""}
                         alt="Preview"
-                        className="w-full h-full object-cover rounded-full"
+                        fill
+                        sizes="160px"
+                        style={{ objectFit: "cover", borderRadius: "9999px" }}
                       />
                       <button
                         type="button"

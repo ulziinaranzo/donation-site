@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { User, Donation } from "@/app/_components/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -14,7 +16,6 @@ export const DonationsDetails = ({
   data,
   profileUser,
 }: DonationsDetailsProps) => {
-
   return (
     <>
       <Card className="shadow-sm">
@@ -24,6 +25,7 @@ export const DonationsDetails = ({
             href={profileUser?.profile?.socialMediaUrl || "#"}
             className="text-sm break-all hover:underline text-blue-600"
             target="_blank"
+            rel="noopener noreferrer"
           >
             {profileUser?.profile?.socialMediaUrl || "No link provided."}
           </a>
@@ -35,9 +37,16 @@ export const DonationsDetails = ({
         <CardContent className="space-y-4 max-h-[400px] overflow-y-auto pr-5">
           {data.length === 0 ? (
             <div className="text-center py-4">
-              <img src="/Images/177043.png" className="mx-auto w-16 h-16" />
+              <Image
+                src="/Images/177043.png"
+                width={64}
+                height={64}
+                alt="No supporters yet"
+                className="mx-auto"
+              />
               <p className="text-sm text-muted-foreground mt-2">
-                Be the first one to support {profileUser?.profile?.name || "this user"}.
+                Be the first one to support{" "}
+                {profileUser?.profile?.name || "this user"}.
               </p>
             </div>
           ) : (
@@ -60,9 +69,14 @@ export const DonationsDetails = ({
                         </p>
                         {senderProfile?.socialMediaUrl && (
                           <a
-                            href={`https://${senderProfile.socialMediaUrl}`}
+                            href={
+                              senderProfile.socialMediaUrl.startsWith("http")
+                                ? senderProfile.socialMediaUrl
+                                : `https://${senderProfile.socialMediaUrl}`
+                            }
                             className="text-sm text-blue-500 hover:underline"
                             target="_blank"
+                            rel="noopener noreferrer"
                           >
                             {senderProfile.socialMediaUrl}
                           </a>

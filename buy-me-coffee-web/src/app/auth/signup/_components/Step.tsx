@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { api } from "@/axios";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 const formSchema = z.object({
   username: z
@@ -20,18 +21,12 @@ type FormData = {
   password: string;
 };
 type StepProps = {
-  handlePrev: () => void;
   handleNext: () => void;
   data: FormData;
   saveFormDataChange: (newData: Partial<FormData>) => void;
 };
 type SignupFormData = z.infer<typeof formSchema>;
-export const Step = ({
-  handleNext,
-  handlePrev,
-  data,
-  saveFormDataChange,
-}: StepProps) => {
+export const Step = ({ handleNext, data, saveFormDataChange }: StepProps) => {
   const {
     control,
     handleSubmit,
@@ -42,7 +37,7 @@ export const Step = ({
     defaultValues: {
       username: data.username || "",
     },
-    mode: "onBlur"
+    mode: "onBlur",
   });
 
   const checkUsernameAvailability = async (username: string) => {
@@ -51,18 +46,16 @@ export const Step = ({
         params: { username },
       });
 
-      // Хэрвээ username олдоогүй (available) бол true буцаана
       if (res.status === 200) {
         return true;
       }
-    } catch (error: any) {
-      if (error.response?.status === 409) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response?.status === 409) {
         return "Энэ хэрэглэгчийн нэр аль хэдийн бүртгэлтэй байна.";
       }
       return "Алдаа гарлаа. Дахин оролдоно уу.";
     }
   };
-  
 
   const onSubmit = (savingData: SignupFormData) => {
     saveFormDataChange(savingData);
@@ -80,7 +73,7 @@ export const Step = ({
           <Controller
             name="username"
             control={control}
-            rules={{validate: checkUsernameAvailability}}
+            rules={{ validate: checkUsernameAvailability }}
             render={({ field }) => (
               <div>
                 <Input
@@ -88,12 +81,13 @@ export const Step = ({
                   placeholder="Хэрэглэгчийн нэрээ оруулна уу"
                   type="text"
                   className="w-[300px]"
-                  onBlur={async () => {field.onBlur();
-                    const isValid = await trigger("username")
+                  onBlur={async () => {
+                    field.onBlur();
+                    const isValid = await trigger("username");
                     if (!isValid && errors.username?.message) {
                       toast.error(errors.username.message);
-                    }}}
-                    
+                    }
+                  }}
                 />
               </div>
             )}

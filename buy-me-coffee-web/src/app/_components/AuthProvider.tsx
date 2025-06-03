@@ -1,6 +1,7 @@
 "use client";
 
 import { api, setAuthToken } from "@/axios";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, createContext, useContext } from "react";
 import { toast } from "sonner";
@@ -84,8 +85,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signIn = async (email: string, password: string) => {
     try {
       const { data } = await api.post("/auth/signin", { email, password });
-      console.log("dataaaa", data);
-      console.log("token", data.token);
       toast.success("Амжилттай нэвтэрлээ");
       localStorage.setItem("token", data.token);
       setAuthToken(data.token);
@@ -97,24 +96,30 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const signUp = async (email: string, password: string, username: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    username: string
+  ): Promise<void> => {
     try {
       const { data } = await api.post("/auth/signup", {
         email,
         password,
         username,
       });
-      console.log(data.token);
-
       toast.success("Амжилттай бүртгүүллээ");
       localStorage.setItem("token", data.token);
       setAuthToken(data.token);
       setUser(data.user);
       router.push("/complete-profile");
-    } catch (error: any) {
-      console.error(error);
-      const msg = error?.response?.data?.message || "Бүртгүүлэхэд алдаа гарлаа";
-      toast.error(msg);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const msg =
+          error.response?.data?.message || "Бүртгүүлэхэд алдаа гарлаа";
+        toast.error(msg);
+      } else {
+        toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
+      }
     }
   };
 
@@ -146,6 +151,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     setAuthToken(token);
     getUser();
   }, []);
+
   return (
     <AuthContext.Provider
       value={{ user, signIn, signUp, signOut, setUser, getUser }}

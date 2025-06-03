@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 const UPLOAD_PRESET = "buy-me-coffee";
 const CLOUD_NAME = "dxhmgs7wt";
 
-export default function completeProfilePage() {
+export default function CompleteProfilePage() {
   const router = useRouter();
   const { user, getUser } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
@@ -103,11 +104,20 @@ export default function completeProfilePage() {
 
       toast.success("Амжилттай хадгалагдлаа");
       router.push("/payment");
-    } catch (error: any) {
-      console.error(
-        "Алдаа гарлаа, бүтэн бөглөнө үү:",
-        error.response?.data || error.message
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Алдаа гарлаа, бүтэн бөглөнө үү:",
+          error.response?.data || error.message
+        );
+        toast.error(error.response?.data?.message || "Алдаа гарлаа");
+      } else if (error instanceof Error) {
+        console.error("Алдаа гарлаа:", error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Тодорхойгүй алдаа гарлаа:", error);
+        toast.error("Тодорхойгүй алдаа гарлаа");
+      }
     }
   };
 
@@ -159,11 +169,13 @@ export default function completeProfilePage() {
                   {loadingImage ? (
                     <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
                   ) : imagePreview || uploadedUrl ? (
-                    <div className="relative w-full h-full">
-                      <img
+                    <div className="relative w-full h-full rounded-full overflow-hidden">
+                      <Image
                         src={imagePreview || uploadedUrl}
                         alt="Preview"
-                        className="w-full h-full object-cover rounded-full"
+                        fill
+                        className="object-cover rounded-full"
+                        sizes="(max-width: 650px) 100vw, 650px"
                       />
                       <button
                         type="button"

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/axios";
 import { toast } from "sonner";
-import { Donation, useAuth, User } from "../_components/AuthProvider";
+import { Donation, useAuth } from "../_components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { UserInfo } from "./UserInfo";
@@ -12,33 +12,25 @@ import { DonationList } from "./DonationList";
 
 export default function HomePage() {
   const [donations, setDonations] = useState<Donation[]>([]);
-  const [loading, setLoading] = useState(false);
   const [timeFilter, setTimeFilter] = useState("all");
   const [amountFilter, setAmountFilter] = useState("");
   const { user } = useAuth();
-  const [anonymousUser, setAnonymousUser] = useState<User | null>(null)
 
   useEffect(() => {
     if (!user) return;
+
+    const getDonations = async () => {
+      try {
+        const response = await api.get(`/donation/received/${user.username}`);
+        setDonations(response.data.donations || []);
+      } catch (error) {
+        console.error("Donation-ийг авахад алдаа гарлаа", error);
+        toast.error("Donation-ийг авахад алдаа гарлаа");
+      }
+    };
+
     getDonations();
   }, [user]);
-
-  const getDonations = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get(`/donation/received/${user?.username}`);
-      setDonations(response.data.donations || []);
-      
-      const anonUser = await api.get("/user/9")
-      setAnonymousUser(anonUser.data.profile)
-    } catch (error) {
-      console.error("Donation-ийг авахад алдаа гарлаа", error);
-      toast.error("Donation-ийг авахад алдаа гарлаа");
-    } finally {
-      setLoading(false);
-    }
-  };
-
 
   const filteredDonations = donations
     .filter((d) => {
@@ -62,11 +54,6 @@ export default function HomePage() {
     (acc, curr) => acc + curr.amount,
     0
   );
-
-  useEffect(() => {
-    if (!user) return;
-    getDonations();
-  }, [user]);
 
   return (
     <div className="w-full mx-auto p-10 space-y-6">
