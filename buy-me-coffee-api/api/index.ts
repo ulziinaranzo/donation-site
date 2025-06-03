@@ -6,7 +6,7 @@ import profileRouter from "../src/routes/profile.route";
 import donationRouter from "../src/routes/donation.route";
 import authRouter from "../src/routes/auth.route";
 import cors from "cors";
-import jwt from "jsonwebtoken";
+
 const app = express();
 dotenv.config();
 
@@ -20,6 +20,7 @@ app.use(bankCardRouter);
 app.use(profileRouter);
 app.use(donationRouter);
 app.use(authRouter);
+app.use(webhookRouter)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

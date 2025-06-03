@@ -7,14 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { api } from "@/axios";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SuccessMessage } from "./SuccessPage";
-import { motion } from "framer-motion";
 
 const donateSchema = z.object({
   amount: z.coerce.number().min(1, "Donation-ий дүн сонгоно уу"),
@@ -29,10 +28,32 @@ interface DonateProps {
   refetchDonations?: () => Promise<void>;
 }
 
+const donations = [
+  {
+    label: "$1",
+    url: "https://buy.stripe.com/test_bJe9AT3G4f241sagJFcjS03",
+  },
+  {
+    label: "$2",
+    url: "https://buy.stripe.com/test_5kQdR9b8w07a0o6bplcjS02",
+  },
+  {
+    label: "$5",
+    url: "https://buy.stripe.com/test_14AcN5foMaLO5IqctpcjS01",
+  },
+  {
+    label: "$6",
+    url: "https://buy.stripe.com/test_9B65kDekI2fieeWalhcjS00",
+  },
+];
+
 export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   const { user } = useAuth();
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [selectedDonation, setSelectedDonation] = useState<
+    (typeof donations)[0] | null
+  >(null);
+  const [donationId, setDonationId] = useState<number | null>(null);
+  const [isPaid, setIsPaid] = useState(false);
 
   const {
     register,
@@ -46,33 +67,60 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   });
 
   const onSubmit = async (data: DonationFormData) => {
+    if (!selectedDonation) {
+      toast.error("Дүн сонгоно уу");
+      return;
+    }
+
     try {
-      await api.post("/donation/create-donation", {
+      const response = await api.post("/donation/create-donation", {
         ...data,
+        amount: parseInt(selectedDonation.label.slice(1), 10),
         recipientId,
         ...(user?.id && { senderId: user.id }),
       });
 
-      toast.success("Амжилттай donation илгээгдлээ, баярлалаа");
-      setIsDialogOpen(true);
-      reset();
+      const createdDonation = response.data;
+      setDonationId(createdDonation.id);
 
-      if (refetchDonations) {
-        await refetchDonations();
-      }
+      window.open(
+        `${selectedDonation.url}?client_reference_id=${createdDonation.id}`,
+        "_blank"
+      );
     } catch (error) {
       toast.error("Алдаа гарлаа");
-      console.error("Error", error);
+      console.error("Donation error:", error);
     }
   };
 
-  const handleAmountClick = (amount: number) => {
-    setSelectedAmount(amount);
-    setValue("amount", amount, { shouldValidate: true });
-  };
+  useEffect(() => {
+    if (!donationId) return;
 
-  const handleOpenChange = (open: boolean) => {
-    setIsDialogOpen(open);
+    const checkPayment = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const { data } = await api.get(`/donation/${donationId}`);
+      if (data?.isPaid) {
+        setIsPaid(true);
+        if (refetchDonations) await refetchDonations();
+      }
+    };
+
+    checkPayment();
+  }, [donationId, refetchDonations]);
+
+  if (isPaid) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center bg-white">
+        <SuccessMessage recipientId={recipientId!}/>
+      </div>
+    );
+  }
+
+  const handleAmountClick = (item: (typeof donations)[0]) => {
+    setSelectedDonation(item);
+    setValue("amount", parseInt(item.label.slice(1), 10), {
+      shouldValidate: true,
+    });
   };
 
   return (
@@ -85,15 +133,20 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
           <div>
             <Label>Select amount:</Label>
             <div className="flex gap-2 flex-wrap mt-2">
-              {[1, 2, 5, 10].map((amount) => (
+              {donations.map((item) => (
                 <Button
-                  key={amount}
+                  key={item.label}
                   type="button"
-                  variant={selectedAmount === amount ? "default" : "outline"}
+                  variant={
+                    item.label === selectedDonation?.label
+                      ? "default"
+                      : "secondary"
+                  }
                   className="bg-[#F4F4F5CC] w-[72px]"
-                  onClick={() => handleAmountClick(amount)}
+                  onClick={() => handleAmountClick(item)}
                 >
-                  <Coffee className="mr-1" />${amount}
+                  <Coffee className="mr-1" />
+                  {item.label}
                 </Button>
               ))}
             </div>
@@ -135,18 +188,11 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
             className="w-full mt-4 bg-black text-white"
             type="submit"
             disabled={!isValid}
-            onClick={() => setIsDialogOpen(true)}
           >
             Support
           </Button>
         </CardContent>
       </Card>
-      <SuccessMessage
-        open={isDialogOpen}
-        onOpenChange={handleOpenChange}
-        recipientId={recipientId!}
-      />
     </form>
   );
 };
-export default Donate;
