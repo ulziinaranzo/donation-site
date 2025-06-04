@@ -14,7 +14,9 @@ dotenv.config();
 const port = 3001;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({ origin: "https://donation-site-mocha.vercel.app/", credentials: true })
+);
 
 app.use(userRouter);
 app.use(bankCardRouter);
