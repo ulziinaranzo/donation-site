@@ -37,7 +37,7 @@ const CLOUD_NAME = "dxhmgs7wt";
 
 export default function CompleteProfilePage() {
   const router = useRouter();
-  const { user, getUser } = useAuth();
+  const { user } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState<boolean>(false);
@@ -61,13 +61,19 @@ export default function CompleteProfilePage() {
 
     try {
       const response = await axios.post(
-        `http://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData
       );
       return response.data.secure_url;
-    } catch (error) {
-      toast.error("Зураг илгээхэд алдаа гарлаа");
-      return null;
+    } catch (error: unknown) {
+      console.error("Алдаа:", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Алдаа гарлаа");
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Тодорхойгүй алдаа гарлаа");
+      }
     } finally {
       setLoadingImage(false);
     }
@@ -94,28 +100,26 @@ export default function CompleteProfilePage() {
   };
 
   const onSubmit = async (data: ProfileFormData) => {
-    await getUser();
+    if (!user?.username) {
+      toast.error("Нэвтэрсэн хэрэглэгч олдсонгүй");
+      return;
+    }
+
     try {
-      await api.post(`/profile/${user?.username}`, {
+      await api.post(`/profile/${user.username}`, {
         ...data,
         avatarImage: data.avatarImage || uploadedUrl,
       });
-      console.log(data);
 
       toast.success("Амжилттай хадгалагдлаа");
       router.push("/payment");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error(
-          "Алдаа гарлаа, бүтэн бөглөнө үү:",
-          error.response?.data || error.message
-        );
+        console.error("Алдаа:", error.response?.data || error.message);
         toast.error(error.response?.data?.message || "Алдаа гарлаа");
       } else if (error instanceof Error) {
-        console.error("Алдаа гарлаа:", error.message);
         toast.error(error.message);
       } else {
-        console.error("Тодорхойгүй алдаа гарлаа:", error);
         toast.error("Тодорхойгүй алдаа гарлаа");
       }
     }
@@ -128,11 +132,8 @@ export default function CompleteProfilePage() {
   }, [uploadedUrl, setValue]);
 
   useEffect(() => {
-    if (isSubmitting || loadingImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow =
+      isSubmitting || loadingImage ? "hidden" : "auto";
   }, [isSubmitting, loadingImage]);
 
   useEffect(() => {
@@ -199,6 +200,7 @@ export default function CompleteProfilePage() {
                   />
                 </label>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Нэр</Label>
                 <Input
@@ -245,9 +247,9 @@ export default function CompleteProfilePage() {
                 className="w-full h-[40px] mt-4 bg-black text-white"
                 disabled={!isValid || isSubmitting || loadingImage}
               >
-                {isSubmitting ? (
+                {isSubmitting && (
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : null}
+                )}
                 {isSubmitting ? "Хадгалж байна..." : "Хадгалах"}
               </Button>
             </div>

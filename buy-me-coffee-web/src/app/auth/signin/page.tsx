@@ -7,7 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/_components/AuthProvider";
-import { useRouter } from "next/navigation";
+import Image from "next/image"; // ✅ img-ийг Image болгон сольсон
 
 const formSchema = z.object({
   email: z
@@ -25,7 +25,6 @@ const SignInPage = () => {
   });
 
   const { signIn } = useAuth();
-  const router = useRouter();
 
   const {
     control,
@@ -49,7 +48,13 @@ const SignInPage = () => {
   return (
     <div className="w-screen h-screen flex">
       <div className="flex flex-col flex-1/2 bg-[#ffe8dd] justify-center items-center">
-        <img src="/Images/bg.avif" className="w-[455px]" alt="Background" />
+        <Image
+          src="/Images/bg.avif"
+          alt="Background"
+          width={455}
+          height={300}
+          className="w-[455px]"
+        />
         <div className="font-[700] text-[24px] mb-[10px]">
           Бүтээлч ажлаа санхүүжүүл
         </div>
