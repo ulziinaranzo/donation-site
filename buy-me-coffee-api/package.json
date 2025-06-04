@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "nodemon api/index.ts",
     "setup": "prisma generate",
-    "migrate": "prisma migrate dev"
+    "migrate": "prisma migrate dev",
+    "deploy": "vercel --prod",
+    "login": "vercel login",
+    "build": "prisma generate && tsc",
+    "start": "node api/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +27,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.0",
-    "vercel": "^42.1.1"
+    "vercel": "^42.3.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
