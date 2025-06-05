@@ -15,7 +15,7 @@ const port = 3001;
 
 app.use(express.json());
 app.use(
-  cors({ origin: "https://donation-site-mocha.vercel.app/", credentials: true })
+  cors({ origin: "https://donation-site-mocha.vercel.app", credentials: true })
 );
 
 app.use(userRouter);

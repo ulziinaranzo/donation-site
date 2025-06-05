@@ -1,19 +1,14 @@
 "use client";
-
 import { useAuth } from "@/app/_components/AuthProvider";
-import { Coffee } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { api } from "@/axios";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
 import { SuccessMessage } from "./SuccessPage";
+import { DonateCard } from "./DonateCard";
 
 const donateSchema = z.object({
   amount: z.coerce.number().min(1, "Donation-ий дүн сонгоно уу"),
@@ -21,7 +16,7 @@ const donateSchema = z.object({
   specialMessage: z.string().min(1, "Сэтгэлийн үгээ оруулна уу"),
 });
 
-type DonationFormData = z.infer<typeof donateSchema>;
+export type DonationFormData = z.infer<typeof donateSchema>;
 
 interface DonateProps {
   recipientId?: number;
@@ -76,7 +71,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
         ...data,
         amount: parseInt(selectedDonation.label.slice(1), 10),
         recipientId,
-        ...(user?.id && { senderId: user.id }),
+        senderId: user?.id ?? null,
       });
 
       const createdDonation = response.data;
@@ -107,14 +102,6 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     checkPayment();
   }, [donationId, refetchDonations]);
 
-  if (isPaid) {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center bg-white">
-        <SuccessMessage recipientId={recipientId!} />
-      </div>
-    );
-  }
-
   const handleAmountClick = (item: (typeof donations)[0]) => {
     setSelectedDonation(item);
     setValue("amount", parseInt(item.label.slice(1), 10), {
@@ -122,76 +109,27 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     });
   };
 
+  if (isPaid) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center bg-white opacity-20">
+        <SuccessMessage recipientId={recipientId!} />
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Card className="mb-[50px] p-[24px] w-[623px]">
-        <CardHeader className="text-2xl font-semibold">
-          Buy {user?.profile?.name || "them"} a Coffee
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label>Select amount:</Label>
-            <div className="flex gap-2 flex-wrap mt-2">
-              {donations.map((item) => (
-                <Button
-                  key={item.label}
-                  type="button"
-                  variant={
-                    item.label === selectedDonation?.label
-                      ? "default"
-                      : "secondary"
-                  }
-                  className="bg-[#F4F4F5CC] w-[72px]"
-                  onClick={() => handleAmountClick(item)}
-                >
-                  <Coffee className="mr-1" />
-                  {item.label}
-                </Button>
-              ))}
-            </div>
-            {errors.amount && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.amount.message}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label>Сошл медиа холбоосоо үлдээнэ үү:</Label>
-            <Input
-              id="socialMediaUrl"
-              placeholder="buymeacoffee.com/your-username"
-              className="mt-1"
-              {...register("socialMediaUrl")}
-            />
-            {errors.socialMediaUrl && (
-              <p className="text-sm text-red-500">
-                {errors.socialMediaUrl.message}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label>Сэтгэлийн үгээ бичээрэй:</Label>
-            <Textarea
-              id="specialMessage"
-              placeholder="Please write your message here."
-              className="h-[153px] mt-1"
-              {...register("specialMessage")}
-            />
-            {errors.specialMessage && (
-              <p className="text-sm text-red-500">
-                {errors.specialMessage.message}
-              </p>
-            )}
-          </div>
-          <Button
-            className="w-full mt-4 bg-black text-white"
-            type="submit"
-            disabled={!isValid}
-          >
-            Support
-          </Button>
-        </CardContent>
-      </Card>
-    </form>
+    <div className="w-screen h-screen flex justify-center items-center bg-white">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DonateCard
+          user={user ?? null}
+          donations={donations}
+          selectedDonation={selectedDonation}
+          handleAmountClick={handleAmountClick}
+          register={register}
+          errors={errors}
+          isValid={isValid}
+        />
+      </form>
+    </div>
   );
 };
