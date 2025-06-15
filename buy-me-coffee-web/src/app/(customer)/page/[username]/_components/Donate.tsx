@@ -100,11 +100,39 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     if (!donationId) return;
 
     const checkPayment = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const { data } = await api.get(`/donation/${donationId}`);
-      if (data?.isPaid) {
-        setIsPaid(true);
-        if (refetchDonations) await refetchDonations();
+      try {
+        // Эхний шалгалт 2 сек
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const { data } = await api.get(`/donation/${donationId}`);
+        console.log("Initial donation check:", data);
+
+        if (data?.isPaid) {
+          setIsPaid(true);
+          if (refetchDonations) await refetchDonations();
+        } else {
+          // Дахин шалгах функц
+          const retryCheck = async () => {
+            try {
+              await new Promise((resolve) => setTimeout(resolve, 10000));
+              const { data } = await api.get(`/donation/${donationId}`);
+              console.log("Retry check:", data);
+
+              if (data?.isPaid) {
+                setIsPaid(true);
+                if (refetchDonations) await refetchDonations();
+              } else {
+                retryCheck(); // дахин шалгах
+              }
+            } catch (err) {
+              console.error("Retry error:", err);
+              setTimeout(retryCheck, 10000); // fallback
+            }
+          };
+
+          retryCheck();
+        }
+      } catch (err) {
+        console.error("Initial check error:", err);
       }
     };
 
@@ -121,31 +149,6 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!donationId) return;
-
-    const checkPayment = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
-        const { data } = await api.get(`/donation/${donationId}`);
-        console.log("Checking donation status:", data);
-
-        if (data?.isPaid) {
-          setIsPaid(true);
-          if (refetchDonations) await refetchDonations();
-        } else {
-          checkPayment();
-        }
-      } catch (error) {
-        console.error("Error checking payment:", error);
-        setTimeout(checkPayment, 10000);
-      }
-    };
-
-    checkPayment();
-  }, [donationId, refetchDonations]);
 
   if (isPaid) {
     return (
