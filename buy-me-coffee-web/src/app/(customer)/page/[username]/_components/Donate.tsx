@@ -122,6 +122,31 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     );
   }
 
+  useEffect(() => {
+    if (!donationId) return;
+
+    const checkPayment = async () => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+
+        const { data } = await api.get(`/donation/${donationId}`);
+        console.log("Checking donation status:", data);
+
+        if (data?.isPaid) {
+          setIsPaid(true);
+          if (refetchDonations) await refetchDonations();
+        } else {
+          checkPayment();
+        }
+      } catch (error) {
+        console.error("Error checking payment:", error);
+        setTimeout(checkPayment, 10000);
+      }
+    };
+
+    checkPayment();
+  }, [donationId, refetchDonations]);
+
   if (isPaid) {
     return (
       <div className="w-screen h-screen flex justify-center items-center bg-white">
