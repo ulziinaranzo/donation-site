@@ -27,7 +27,6 @@ app.use(bankCardRouter);
 app.use(profileRouter);
 app.use(donationRouter);
 app.use(authRouter);
-app.use(webhookRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
