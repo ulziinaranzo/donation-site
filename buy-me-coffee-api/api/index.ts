@@ -20,6 +20,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.urlencoded({ extended: true }));
 
 app.use(userRouter);
 app.use(bankCardRouter);

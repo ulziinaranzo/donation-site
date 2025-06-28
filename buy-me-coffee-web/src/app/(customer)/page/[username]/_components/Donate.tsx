@@ -99,40 +99,38 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   useEffect(() => {
     if (!donationId) return;
 
+    let retryCount = 0;
+    const maxRetries = 10;
+
     const checkPayment = async () => {
       try {
-        // Эхний шалгалт 2 сек
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        console.log(`Checking payment status, attempt ${retryCount + 1}`);
         const { data } = await api.get(`/donation/${donationId}`);
-        console.log("Initial donation check:", data);
+        console.log("Payment check result:", data);
 
         if (data?.isPaid) {
           setIsPaid(true);
           if (refetchDonations) await refetchDonations();
+          return;
+        }
+
+        retryCount++;
+        if (retryCount < maxRetries) {
+          const delay =
+            retryCount <= 3 ? Math.pow(2, retryCount) * 1000 : 10000;
+          setTimeout(checkPayment, delay);
         } else {
-          // Дахин шалгах функц
-          const retryCheck = async () => {
-            try {
-              await new Promise((resolve) => setTimeout(resolve, 10000));
-              const { data } = await api.get(`/donation/${donationId}`);
-              console.log("Retry check:", data);
-
-              if (data?.isPaid) {
-                setIsPaid(true);
-                if (refetchDonations) await refetchDonations();
-              } else {
-                retryCheck(); // дахин шалгах
-              }
-            } catch (err) {
-              console.error("Retry error:", err);
-              setTimeout(retryCheck, 10000); // fallback
-            }
-          };
-
-          retryCheck();
+          console.log("Max retries reached, stopping payment check");
+          toast.error(
+            "Төлбөрийн баталгаажуулалт хугацаа хэтэрсэн. Хэрэв төлбөр төлсөн бол дахин ачааллана уу."
+          );
         }
       } catch (err) {
-        console.error("Initial check error:", err);
+        console.error("Payment check error:", err);
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(checkPayment, 5000);
+        }
       }
     };
 
