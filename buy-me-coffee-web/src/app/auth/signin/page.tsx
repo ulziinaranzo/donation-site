@@ -7,7 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/_components/AuthProvider";
-import Image from "next/image"; // ✅ img-ийг Image болгон сольсон
+import Image from "next/image";
 
 const formSchema = z.object({
   email: z
