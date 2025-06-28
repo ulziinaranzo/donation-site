@@ -161,7 +161,7 @@ export const EditPageDialog = () => {
             >
               {imagePreview ? (
                 <Image
-                  src={imagePreview || user?.profile.avatarImage || ""}
+                  src={imagePreview || user?.profile?.avatarImage || ""}
                   alt="Profile avatar"
                   fill
                   style={{ objectFit: "cover" }}

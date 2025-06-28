@@ -46,7 +46,6 @@ export default function ChangeCompleteProfilePage() {
     handleSubmit,
     setValue,
     reset,
-    watch,
     formState: { errors, isValid, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -116,7 +115,7 @@ export default function ChangeCompleteProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      console.log("Илгээх мэдээлэл:", data); // Debug
+      console.log("Илгээх мэдээлэл:", data);
 
       const submitData = {
         ...data,
