@@ -36,12 +36,21 @@ const signUpController = (req, res) => __awaiter(void 0, void 0, void 0, functio
         return;
     }
     try {
-        const existingUser = yield db_1.prisma.user.findUnique({
-            where: { username, email },
+        const existingUserByUsername = yield db_1.prisma.user.findUnique({
+            where: { username },
         });
-        if (existingUser) {
+        const existingUserByEmail = yield db_1.prisma.user.findUnique({
+            where: { email },
+        });
+        if (existingUserByUsername) {
             res.status(400).json({
-                message: "Энэ username, email-ийг аль хэдийн бүртгэсэн байна",
+                message: "Энэ хэрэглэгчийн нэрийг аль хэдийн ашиглаж байна",
+            });
+            return;
+        }
+        if (existingUserByEmail) {
+            res.status(400).json({
+                message: "Энэ имэйлийг аль хэдийн бүртгэсэн байна",
             });
             return;
         }
@@ -51,14 +60,29 @@ const signUpController = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 email,
                 password: hashedPassword,
                 username,
+                name: username,
+                profile: {
+                    create: {
+                        name: username,
+                        about: "",
+                        avatarImage: "",
+                        socialMediaUrl: "",
+                        backgroundImage: "",
+                        successMessage: "",
+                    },
+                },
+            },
+            include: {
+                profile: true,
+                bankCard: true,
+                donations: true,
+                received: true,
             },
         });
         const token = jsonwebtoken_1.default.sign({ userId: user.id }, process.env.JWT_NUUTS, { expiresIn: "1d" });
-        if (!user) {
-            res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
-            return;
-        }
         const { password: _ } = user, userWithoutPassword = __rest(user, ["password"]);
+        console.log("User created successfully:", user.email);
+        console.log("Profile created:", user.profile);
         res.status(201).json({
             message: "Хэрэглэгч амжилттай бүртгэгдлээ",
             token,

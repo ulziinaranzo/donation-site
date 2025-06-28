@@ -23,6 +23,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMe = void 0;
 const db_1 = require("../../db");
 const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const userId = req.userId;
         console.log("Getting user data for userId:", userId);
@@ -36,6 +37,34 @@ const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             include: {
                 profile: true,
                 bankCard: true,
+                donations: {
+                    include: {
+                        recipient: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                        sender: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                    },
+                },
+                received: {
+                    include: {
+                        recipient: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                        sender: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                    },
+                },
             },
         });
         if (!user) {
@@ -44,6 +73,8 @@ const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return;
         }
         console.log("User found successfully:", user.email);
+        console.log("Profile data:", user.profile);
+        console.log("Avatar image:", (_a = user.profile) === null || _a === void 0 ? void 0 : _a.avatarImage);
         const { password } = user, userWithoutPassword = __rest(user, ["password"]);
         res.status(200).json(userWithoutPassword);
     }

@@ -18,8 +18,10 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         return;
     }
     const { name, about, avatarImage, socialMediaUrl } = req.body;
-    if (!name || !about || !avatarImage || !socialMediaUrl) {
-        res.status(400).json({ message: "Мэдээлэл дутуу" });
+    if (!name || !about || !socialMediaUrl) {
+        res
+            .status(400)
+            .json({ message: "Нэр, тухай болон социал хуудас шаардлагатай" });
         return;
     }
     try {
@@ -30,20 +32,18 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
             return;
         }
-        const existingProfile = yield db_1.prisma.profile.findFirst({
+        const profile = yield db_1.prisma.profile.upsert({
             where: { userId: user.id },
-        });
-        if (existingProfile) {
-            res
-                .status(400)
-                .json({ message: "Энэ хэрэглэгчийн profile аль хэдийн үүссэн байна" });
-            return;
-        }
-        const profile = yield db_1.prisma.profile.create({
-            data: {
+            update: {
                 name,
                 about,
-                avatarImage,
+                avatarImage: avatarImage || null,
+                socialMediaUrl,
+            },
+            create: {
+                name,
+                about,
+                avatarImage: avatarImage || null,
                 socialMediaUrl,
                 userId: user.id,
             },
@@ -52,11 +52,13 @@ const createProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             where: { username: username },
             include: {
                 profile: true,
+                bankCard: true,
             },
         });
-        res
-            .status(201)
-            .json({ message: "Хэрэглэгчийн profile үүслээ", user: updatedUser });
+        res.status(201).json({
+            message: "Хэрэглэгчийн profile амжилттай хадгалагдлаа",
+            user: updatedUser,
+        });
     }
     catch (error) {
         console.error("Profile үүсгэхэд алдаа:", error.message || error);

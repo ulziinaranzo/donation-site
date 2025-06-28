@@ -28,13 +28,46 @@ const db_1 = require("../../db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { email, password } = req.body;
+    if (!email || !password) {
+        res.status(400).json({ message: "Имэйл болон нууц үг шаардлагатай" });
+        return;
+    }
     try {
         const user = yield db_1.prisma.user.findUnique({
             where: { email: email },
             include: {
                 profile: true,
                 bankCard: true,
+                donations: {
+                    include: {
+                        recipient: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                        sender: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                    },
+                },
+                received: {
+                    include: {
+                        recipient: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                        sender: {
+                            include: {
+                                profile: true,
+                            },
+                        },
+                    },
+                },
             },
         });
         if (!user) {
@@ -46,11 +79,18 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             res.status(401).json({ message: "Имэйл эсвэл нууц үг буруу байна" });
             return;
         }
-        const token = jsonwebtoken_1.default.sign({ userId: user.id }, process.env.JWT_NUUTS);
+        const token = jsonwebtoken_1.default.sign({ userId: user.id }, process.env.JWT_NUUTS, { expiresIn: "1d" });
         const { password: _ } = user, userWithoutPassword = __rest(user, ["password"]);
-        res.status(200).json({ user: userWithoutPassword, token });
+        console.log("SignIn successful for user:", user.email);
+        console.log("Profile data:", user.profile);
+        console.log("Avatar image:", (_a = user.profile) === null || _a === void 0 ? void 0 : _a.avatarImage);
+        res.status(200).json({
+            user: userWithoutPassword,
+            token,
+        });
     }
     catch (error) {
+        console.error("SignIn error:", error);
         res.status(500).json({ message: "Сервер дээр алдаа гарлаа" });
     }
 });
