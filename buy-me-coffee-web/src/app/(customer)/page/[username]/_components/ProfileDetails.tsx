@@ -19,7 +19,7 @@ export const ProfileDetails = ({ user, isOwnPage }: ProfileDetailsProps) => {
     <Card className="shadow-sm">
       <div className="flex justify-between items-center px-6 pt-4">
         <div className="flex items-center gap-3">
-          <Avatar className="w-12 h-12">
+          <Avatar className="w-12 h-12 object-cover">
             <AvatarImage src={avatar} />
             <AvatarFallback>{name?.charAt(0)}</AvatarFallback>
           </Avatar>

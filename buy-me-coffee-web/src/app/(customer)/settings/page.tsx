@@ -10,7 +10,7 @@ export default function Home() {
     <div className="flex h-screen mt-[44px]">
       <main className="flex-1  p-[24px]">
         <div className="w-full h-fit flex flex-col pl-[10%]">
-          <div className="font-[600] text-[24px]">My account</div>
+          <div className="font-[600] text-[24px]">Миний профайл</div>
           <ChangeCompleteProfilePage />
           <ChangePassword />
           <ChangePaymentDetails />

@@ -25,8 +25,8 @@ import axios from "axios";
 const profileSchema = z.object({
   name: z.string().min(1, "Нэрээ оруулна уу"),
   about: z.string().min(1, "Өөрийн тухай бичнэ үү"),
-  socialMediaUrl: z.string().url("Зөв URL оруулна уу"),
-  avatarImage: z.string().url().optional(),
+  socialMediaUrl: z.string().url("Зөв URL оруулна уу").or(z.literal("")),
+  avatarImage: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -35,7 +35,7 @@ const UPLOAD_PRESET = "food-delivery";
 const CLOUD_NAME = "dfjv83cxe";
 
 export default function ChangeCompleteProfilePage() {
-  const { user } = useAuth();
+  const { user, getUser } = useAuth();
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState<boolean>(false);
@@ -45,17 +45,34 @@ export default function ChangeCompleteProfilePage() {
     register,
     handleSubmit,
     setValue,
+    reset,
+    watch,
     formState: { errors, isValid, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     mode: "all",
-    defaultValues: {
-      name: user?.profile?.name || "",
-      about: user?.profile?.about || "",
-      avatarImage: user?.profile?.avatarImage || "",
-      socialMediaUrl: user?.profile?.socialMediaUrl || "",
-    },
   });
+
+  useEffect(() => {
+    console.log("User өөрчлөгдлөө:", user);
+
+    if (user?.profile) {
+      const profileData = {
+        name: user.profile.name || "",
+        about: user.profile.about || "",
+        socialMediaUrl: user.profile.socialMediaUrl || "",
+        avatarImage: user.profile.avatarImage || "",
+      };
+
+      console.log("Profile мэдээлэл:", profileData);
+
+      reset(profileData);
+      if (user.profile.avatarImage) {
+        setImagePreview(user.profile.avatarImage);
+        setUploadedUrl(user.profile.avatarImage);
+      }
+    }
+  }, [user, reset]);
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();
@@ -71,7 +88,7 @@ export default function ChangeCompleteProfilePage() {
       return response.data.secure_url;
     } catch (error) {
       toast.error("Зураг илгээхэд алдаа гарлаа");
-      console.error("Error updating profile:", error);
+      console.error("Error uploading image:", error);
     } finally {
       setLoadingImage(false);
     }
@@ -99,40 +116,34 @@ export default function ChangeCompleteProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      await api.put(`/profile/${user?.id}`, {
+      console.log("Илгээх мэдээлэл:", data); // Debug
+
+      const submitData = {
         ...data,
-        avatarImage: data.avatarImage || uploadedUrl,
-      });
+        avatarImage: uploadedUrl || data.avatarImage || "",
+      };
+
+      await api.put(`/profile/${user?.id}`, submitData);
+
+      await getUser();
       toast.success("Амжилттай хадгалагдлаа");
-    } catch (_error) {
+    } catch (error) {
       toast.error("Алдаа гарлаа");
-      console.error("Error updating profile:", _error);
+      console.error("Error updating profile:", error);
     }
   };
 
-  useEffect(() => {
-    if (uploadedUrl) {
-      setValue("avatarImage", uploadedUrl, { shouldValidate: true });
-    }
-  }, [uploadedUrl, setValue]);
-
-  useEffect(() => {
-    if (isSubmitting || loadingImage) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-  }, [isSubmitting, loadingImage]);
-
-  useEffect(() => {
-    if (user?.profile?.avatarImage) {
-      setImagePreview(user.profile.avatarImage);
-      setUploadedUrl(user.profile.avatarImage);
-    }
-  }, [user?.profile?.avatarImage]);
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin" />
+        <span className="ml-2">Мэдээлэл ачаалж байна...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative flex flex-col bg-white mb-8 mt-8 ">
+    <div className="relative flex flex-col bg-white mb-8 mt-8">
       {(isSubmitting || loadingImage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <Loader2 className="w-10 h-10 animate-spin text-gray-800" />
@@ -157,10 +168,10 @@ export default function ChangeCompleteProfilePage() {
                 >
                   {loadingImage ? (
                     <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
-                  ) : imagePreview || uploadedUrl ? (
+                  ) : imagePreview ? (
                     <div className="relative w-full h-full">
                       <Image
-                        src={imagePreview || uploadedUrl || ""}
+                        src={imagePreview}
                         alt="Preview"
                         fill
                         sizes="160px"
@@ -188,6 +199,7 @@ export default function ChangeCompleteProfilePage() {
                   />
                 </label>
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="name">Нэр</Label>
                 <Input
@@ -213,6 +225,7 @@ export default function ChangeCompleteProfilePage() {
                   <p className="text-sm text-red-500">{errors.about.message}</p>
                 )}
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="socialMediaUrl">Сошл хуудсын холбоос</Label>
                 <Input

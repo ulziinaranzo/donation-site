@@ -18,6 +18,34 @@ export const getMe: RequestHandler = async (req, res) => {
       include: {
         profile: true,
         bankCard: true,
+        donations: {
+          include: {
+            recipient: {
+              include: {
+                profile: true,
+              },
+            },
+            sender: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
+        received: {
+          include: {
+            recipient: {
+              include: {
+                profile: true,
+              },
+            },
+            sender: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -28,6 +56,8 @@ export const getMe: RequestHandler = async (req, res) => {
     }
 
     console.log("User found successfully:", user.email);
+    console.log("Profile data:", user.profile);
+    console.log("Avatar image:", user.profile?.avatarImage);
 
     const { password, ...userWithoutPassword } = user;
     res.status(200).json(userWithoutPassword);

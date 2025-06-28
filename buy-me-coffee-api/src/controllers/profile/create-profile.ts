@@ -11,8 +11,10 @@ export const createProfile: RequestHandler = async (req, res) => {
 
   const { name, about, avatarImage, socialMediaUrl } = req.body;
 
-  if (!name || !about || !avatarImage || !socialMediaUrl) {
-    res.status(400).json({ message: "Мэдээлэл дутуу" });
+  if (!name || !about || !socialMediaUrl) {
+    res
+      .status(400)
+      .json({ message: "Нэр, тухай болон социал хуудас шаардлагатай" });
     return;
   }
 
@@ -26,22 +28,18 @@ export const createProfile: RequestHandler = async (req, res) => {
       return;
     }
 
-    const existingProfile = await prisma.profile.findFirst({
+    const profile = await prisma.profile.upsert({
       where: { userId: user.id },
-    });
-
-    if (existingProfile) {
-      res
-        .status(400)
-        .json({ message: "Энэ хэрэглэгчийн profile аль хэдийн үүссэн байна" });
-      return;
-    }
-
-    const profile = await prisma.profile.create({
-      data: {
+      update: {
         name,
         about,
-        avatarImage,
+        avatarImage: avatarImage || null,
+        socialMediaUrl,
+      },
+      create: {
+        name,
+        about,
+        avatarImage: avatarImage || null,
         socialMediaUrl,
         userId: user.id,
       },
@@ -51,11 +49,14 @@ export const createProfile: RequestHandler = async (req, res) => {
       where: { username: username },
       include: {
         profile: true,
+        bankCard: true,
       },
     });
-    res
-      .status(201)
-      .json({ message: "Хэрэглэгчийн profile үүслээ", user: updatedUser });
+
+    res.status(201).json({
+      message: "Хэрэглэгчийн profile амжилттай хадгалагдлаа",
+      user: updatedUser,
+    });
   } catch (error: any) {
     console.error("Profile үүсгэхэд алдаа:", error.message || error);
     res.status(500).json({

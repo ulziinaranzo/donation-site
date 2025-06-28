@@ -36,10 +36,8 @@ export const Header = () => {
                 <div className="flex items-center gap-2 cursor-pointer">
                   <Avatar>
                     <AvatarImage
-                      src={
-                        user?.profile?.avatarImage 
-                      }
-                      className="w-[40px] h-[40px] rounded-full"
+                      src={user?.profile?.avatarImage}
+                      className="w-[40px] h-[40px] rounded-full object-cover"
                     />
                     <AvatarFallback>
                       {user?.username?.charAt(0) || "N"}

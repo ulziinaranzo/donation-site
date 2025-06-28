@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,37 +30,78 @@ export default function ChangePaymentDetails() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isValid },
   } = useForm<ChangePaymentFormData>({
     resolver: zodResolver(changePaymentSchema),
-    defaultValues: {
-      firstName: user?.bankCard?.firstName || "",
-      lastName: user?.bankCard?.lastName || "",
-      cardNumber: user?.bankCard?.cardNumber || "",
-      expiryDate: user?.bankCard?.expiryDate
-        ? new Date(user.bankCard.expiryDate).toISOString().slice(0, 7)
-        : "",
-      cvc: user?.bankCard?.cvc || "",
-    },
   });
 
+  useEffect(() => {
+    console.log("User bankCard мэдээлэл:", user?.bankCard);
+
+    if (user?.bankCard) {
+      const cardData = {
+        firstName: user.bankCard.firstName || "",
+        lastName: user.bankCard.lastName || "",
+        cardNumber: user.bankCard.cardNumber || "",
+        expiryDate: user.bankCard.expiryDate
+          ? new Date(user.bankCard.expiryDate).toISOString().slice(0, 7)
+          : "",
+        cvc: user.bankCard.cvc || "",
+      };
+
+      console.log("Card мэдээлэл:", cardData); // Debug
+      reset(cardData);
+    }
+  }, [user, reset]);
+
   const onSubmit = async (data: ChangePaymentFormData) => {
+    if (!user?.bankCard?.id) {
+      toast.error("Картын мэдээлэл олдсонгүй");
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.put(`/bank-card/${user?.bankCard?.id}`, {
+      console.log("Илгээх мэдээлэл:", data); // Debug
+
+      await api.put(`/bank-card/${user.bankCard.id}`, {
         ...data,
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         cardNumber: data.cardNumber.replace(/\s/g, ""),
       });
+
       await getUser();
       toast.success("Амжилттай хадгалагдлаа");
-    } catch {
-      toast.error("Карт нэмэхэд алдаа гарлаа");
+    } catch (error) {
+      toast.error("Карт өөрчлөхөд алдаа гарлаа");
+      console.error("Card update error:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-32">
+        <Loader2 className="w-6 h-6 animate-spin" />
+        <span className="ml-2">Мэдээлэл ачаалж байна...</span>
+      </div>
+    );
+  }
+
+  if (!user.bankCard) {
+    return (
+      <Card className="w-[650px] mb-[32px]">
+        <CardContent className="pt-6">
+          <p className="text-center text-gray-500">
+            Картын мэдээлэл олдсонгүй. Эхлээд карт нэмнэ үү.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-[650px] mb-[32px]">
@@ -71,7 +112,7 @@ export default function ChangePaymentDetails() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <Label>Нэр</Label>
-            <Input {...register("firstName")} />
+            <Input {...register("firstName")} disabled={loading} />
             {errors.firstName && (
               <p className="text-sm text-red-500">{errors.firstName.message}</p>
             )}
@@ -79,7 +120,7 @@ export default function ChangePaymentDetails() {
 
           <div>
             <Label>Овог</Label>
-            <Input {...register("lastName")} />
+            <Input {...register("lastName")} disabled={loading} />
             {errors.lastName && (
               <p className="text-sm text-red-500">{errors.lastName.message}</p>
             )}
@@ -87,7 +128,7 @@ export default function ChangePaymentDetails() {
 
           <div>
             <Label>Картын дугаар</Label>
-            <Input {...register("cardNumber")} />
+            <Input {...register("cardNumber")} disabled={loading} />
             {errors.cardNumber && (
               <p className="text-sm text-red-500">
                 {errors.cardNumber.message}
@@ -97,7 +138,11 @@ export default function ChangePaymentDetails() {
 
           <div>
             <Label>Хугацаа (YYYY-MM)</Label>
-            <Input type="month" {...register("expiryDate")} />
+            <Input
+              type="month"
+              {...register("expiryDate")}
+              disabled={loading}
+            />
             {errors.expiryDate && (
               <p className="text-sm text-red-500">
                 {errors.expiryDate.message}
@@ -107,15 +152,22 @@ export default function ChangePaymentDetails() {
 
           <div>
             <Label>CVC</Label>
-            <Input {...register("cvc")} />
+            <Input {...register("cvc")} disabled={loading} />
             {errors.cvc && (
               <p className="text-sm text-red-500">{errors.cvc.message}</p>
             )}
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-black">
+          <Button
+            type="submit"
+            disabled={!isValid || loading}
+            className="w-full bg-black"
+          >
             {loading ? (
-              <Loader2 className="animate-spin h-5 w-5 mx-auto" />
+              <>
+                <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                Хадгалж байна...
+              </>
             ) : (
               "Хадгалах"
             )}

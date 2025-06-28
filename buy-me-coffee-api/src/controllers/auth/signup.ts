@@ -14,12 +14,24 @@ export const signUpController: RequestHandler = async (req, res) => {
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: { username, email },
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username },
     });
-    if (existingUser) {
+
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUserByUsername) {
       res.status(400).json({
-        message: "Энэ username, email-ийг аль хэдийн бүртгэсэн байна",
+        message: "Энэ хэрэглэгчийн нэрийг аль хэдийн ашиглаж байна",
+      });
+      return;
+    }
+
+    if (existingUserByEmail) {
+      res.status(400).json({
+        message: "Энэ имэйлийг аль хэдийн бүртгэсэн байна",
       });
       return;
     }
@@ -31,6 +43,23 @@ export const signUpController: RequestHandler = async (req, res) => {
         email,
         password: hashedPassword,
         username,
+        name: username,
+        profile: {
+          create: {
+            name: username,
+            about: "",
+            avatarImage: "",
+            socialMediaUrl: "",
+            backgroundImage: "",
+            successMessage: "",
+          },
+        },
+      },
+      include: {
+        profile: true,
+        bankCard: true,
+        donations: true,
+        received: true,
       },
     });
 
@@ -40,12 +69,10 @@ export const signUpController: RequestHandler = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    if (!user) {
-      res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
-      return;
-    }
-
     const { password: _, ...userWithoutPassword } = user;
+
+    console.log("User created successfully:", user.email);
+    console.log("Profile created:", user.profile);
 
     res.status(201).json({
       message: "Хэрэглэгч амжилттай бүртгэгдлээ",
