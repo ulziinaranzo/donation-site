@@ -84,7 +84,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
 
       const createdDonation = response.data;
       setDonationId(createdDonation.id);
-      setPaymentFailed(false); // шинэ төлбөр эхлэхэд амжилтгүй төлвийг цэвэрлэх
+      setPaymentFailed(false);
 
       window.open(
         `${selectedDonation.url}?client_reference_id=${createdDonation.id}`,
@@ -106,9 +106,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
 
     const checkPayment = async () => {
       try {
-        console.log(`Checking payment status, attempt ${retryCount + 1}`);
         const { data } = await api.get(`/donation/${donationId}`);
-        console.log("Payment check result:", data);
 
         if (data?.isPaid) {
           setIsPaid(true);
@@ -122,11 +120,8 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
             retryCount <= 3 ? Math.pow(2, retryCount) * 1000 : 10000;
           setTimeout(checkPayment, delay);
         } else {
-          console.log("Max retries reached, stopping payment check");
-          toast.error(
-            "Төлбөрийн баталгаажуулалт хугацаа хэтэрсэн. Хэрэв төлбөр төлсөн бол дахин ачааллана уу."
-          );
           setPaymentFailed(true);
+          toast.error("Төлбөр шалгах хугацаа хэтэрлээ.");
         }
       } catch (err) {
         console.error("Payment check error:", err);
@@ -142,11 +137,12 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
     checkPayment();
   }, [donationId, refetchDonations]);
 
+  // ✅ Төлөвүүдийн дагуу UI-г сольж return хийх хэсэг:
   if (isLoading) {
     return (
-      <div className="w-screen h-screen flex flex-col justify-center items-center bg-white gap-3">
-        <Loader2 className="w-15 h-15 animate-spin text-gray-800" />
-        <div className="text-black text-[20px]">
+      <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-white gap-3">
+        <Loader2 className="w-10 h-10 animate-spin text-gray-800" />
+        <div className="text-black text-lg">
           Donation хийгдэхийг хүлээж байна...
         </div>
       </div>
@@ -155,28 +151,26 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
 
   if (paymentFailed) {
     return (
-      <div className="w-screen h-screen flex justify-center items-center bg-white">
-        <div className="text-center space-y-4">
-          <p className="text-2xl font-bold text-red-600">
-            Төлбөр амжилтгүй боллоо 😢
-          </p>
-          <p className="text-gray-600">
-            Хэрэв та амжилттай төлбөр хийсэн бол хуудас дахин ачаална уу.
-          </p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="bg-black text-white"
-          >
-            Дахин оролдох
-          </Button>
-        </div>
+      <div className="fixed inset-0 z-50 flex flex-col justify-center items-center bg-white space-y-4">
+        <p className="text-2xl font-bold text-red-600">
+          Төлбөр амжилтгүй боллоо 😢
+        </p>
+        <p className="text-gray-600">
+          Хэрэв та амжилттай төлсөн бол хуудас дахин ачаална уу.
+        </p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="bg-black text-white"
+        >
+          Дахин оролдох
+        </Button>
       </div>
     );
   }
 
   if (isPaid) {
     return (
-      <div className="w-screen h-screen flex justify-center items-center bg-white">
+      <div className="fixed inset-0 z-50 flex justify-center items-center bg-white">
         <SuccessMessage recipientId={recipientId!} />
       </div>
     );
