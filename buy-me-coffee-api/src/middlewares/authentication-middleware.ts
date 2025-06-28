@@ -1,29 +1,32 @@
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 
-export const authenticationMiddleware: RequestHandler = async (
-  req,
-  res,
-  next
-) => {
-  const authHeader = req.headers.authorization;
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: number;
+    }
+  }
+}
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ message: "Unauthorized" });
+export const authenticateToken: RequestHandler = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ message: "Access token шаардлагатай" });
     return;
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const { userId } = jwt.verify(token, process.env.JWT_NUUTS!) as {
-      userId: string;
+    const decoded = jwt.verify(token, process.env.JWT_NUUTS as string) as {
+      userId: number;
     };
-
-    (req as any).userId = userId; 
+    req.userId = decoded.userId;
     next();
   } catch (error) {
-    console.error("Invalid token", error);
-    res.status(401).json({ message: "Invalid token" });
+    console.error("JWT verification error:", error);
+    res.status(403).json({ message: "Token буруу эсвэл хүчингүй байна" });
+    return;
   }
 };
