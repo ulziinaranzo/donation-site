@@ -1,0 +1,1 @@
+{"version":3,"file":"donation.route.js","sourceRoot":"","sources":["../../src/routes/donation.route.ts"],"names":[],"mappings":";;AAAA,qCAAiC;AACjC,6EAAyE;AACzE,mFAA+E;AAC/E,2EAAoF;AAEpF,MAAM,cAAc,GAAG,IAAA,gBAAM,GAAE,CAAC;AAEhC,cAAc;KACX,IAAI,CAAC,2BAA2B,EAAE,gCAAc,CAAC;KACjD,GAAG,CAAC,8BAA8B,EAAE,sCAAiB,CAAC;KACtD,GAAG,CAAC,kCAAkC,EAAE,2CAA0B,CAAC,CAAC;AAEvE,kBAAe,cAAc,CAAC"}
