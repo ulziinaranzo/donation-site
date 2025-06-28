@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image"; // add this import for Next.js Image component
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -31,8 +31,8 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-const UPLOAD_PRESET = "buy-me-coffee";
-const CLOUD_NAME = "dxhmgs7wt";
+const UPLOAD_PRESET = "food-delivery";
+const CLOUD_NAME = "dfjv83cxe";
 
 export default function ChangeCompleteProfilePage() {
   const { user } = useAuth();
@@ -65,7 +65,7 @@ export default function ChangeCompleteProfilePage() {
 
     try {
       const response = await axios.post(
-        `http://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
         formData
       );
       return response.data.secure_url;

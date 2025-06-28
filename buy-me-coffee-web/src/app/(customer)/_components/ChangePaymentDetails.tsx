@@ -63,7 +63,7 @@ export default function ChangePaymentDetails() {
   };
 
   return (
-    <Card className="max-w-lg mx-auto shadow-md border border-gray-200">
+    <Card className="w-[650px] mb-[32px]">
       <CardHeader>
         <CardTitle>Картын мэдээлэл өөрчлөх</CardTitle>
       </CardHeader>
