@@ -54,6 +54,7 @@ model Donation {
   id             Int      @id @default(autoincrement())
   amount         Int
   specialMessage String
+  socialMediaUrl  String? 
   recipientId    Int
   recipient      User     @relation("ReceivedDonations", fields: [recipientId], references: [id])
   senderId       Int?
