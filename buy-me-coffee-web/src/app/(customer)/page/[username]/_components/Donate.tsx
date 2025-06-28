@@ -55,6 +55,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
   const [donationId, setDonationId] = useState<number | null>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentFailed, setPaymentFailed] = useState(false);
 
   const {
     register,
@@ -83,6 +84,7 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
 
       const createdDonation = response.data;
       setDonationId(createdDonation.id);
+      setPaymentFailed(false); // шинэ төлбөр эхлэхэд амжилтгүй төлвийг цэвэрлэх
 
       window.open(
         `${selectedDonation.url}?client_reference_id=${createdDonation.id}`,
@@ -124,12 +126,15 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
           toast.error(
             "Төлбөрийн баталгаажуулалт хугацаа хэтэрсэн. Хэрэв төлбөр төлсөн бол дахин ачааллана уу."
           );
+          setPaymentFailed(true);
         }
       } catch (err) {
         console.error("Payment check error:", err);
         retryCount++;
         if (retryCount < maxRetries) {
           setTimeout(checkPayment, 5000);
+        } else {
+          setPaymentFailed(true);
         }
       }
     };
@@ -143,6 +148,27 @@ export const Donate = ({ recipientId, refetchDonations }: DonateProps) => {
         <Loader2 className="w-15 h-15 animate-spin text-gray-800" />
         <div className="text-black text-[20px]">
           Donation хийгдэхийг хүлээж байна...
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentFailed) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center bg-white">
+        <div className="text-center space-y-4">
+          <p className="text-2xl font-bold text-red-600">
+            Төлбөр амжилтгүй боллоо 😢
+          </p>
+          <p className="text-gray-600">
+            Хэрэв та амжилттай төлбөр хийсэн бол хуудас дахин ачаална уу.
+          </p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-black text-white"
+          >
+            Дахин оролдох
+          </Button>
         </div>
       </div>
     );

@@ -29,9 +29,9 @@ export default async function handler(
   try {
     const buf = await buffer(req);
     event = stripe.webhooks.constructEvent(buf, sig, endpointSecret);
-    console.log("✅ Webhook signature verified", event.type);
+    console.log("✅ Webhook signature verified:", event.type);
   } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err);
+    console.error("❌ Webhook verification failed:", err);
     return res.status(400).json({ error: `Webhook Error: ${err}` });
   }
 
@@ -39,42 +39,46 @@ export default async function handler(
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object as Stripe.Checkout.Session;
-        const { client_reference_id } = session;
-
+        console.log("▶️ Received checkout.session.completed event");
         console.log(
-          "Processing payment completion for donation:",
-          client_reference_id
+          "💡 Full session object:",
+          JSON.stringify(session, null, 2)
         );
 
-        if (client_reference_id) {
-          const updatedDonation = await prisma.donation.update({
-            where: {
-              id: Number(client_reference_id),
-            },
-            data: {
-              isPaid: true,
-              updatedAt: new Date(),
-            },
-          });
+        const client_reference_id = session.client_reference_id;
 
-          console.log("✅ Donation updated successfully:", {
-            id: updatedDonation.id,
-            isPaid: updatedDonation.isPaid,
-          });
+        if (!client_reference_id) {
+          console.warn("⚠️ client_reference_id not found in session");
+          return res
+            .status(400)
+            .json({ error: "client_reference_id is missing" });
         }
+
+        const updatedDonation = await prisma.donation.update({
+          where: { id: Number(client_reference_id) },
+          data: {
+            isPaid: true,
+            updatedAt: new Date(),
+          },
+        });
+
+        console.log("✅ Donation updated successfully:", {
+          id: updatedDonation.id,
+          isPaid: updatedDonation.isPaid,
+        });
         break;
 
       case "payment_intent.succeeded":
-        console.log("Payment intent succeeded:", event.data.object.id);
+        console.log("✅ Payment intent succeeded:", event.data.object.id);
         break;
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log(`❕ Unhandled event type: ${event.type}`);
     }
 
     return res.status(200).json({ received: true });
   } catch (error) {
-    console.error("Error handling Stripe webhook:", error);
+    console.error("❌ Error handling webhook:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
